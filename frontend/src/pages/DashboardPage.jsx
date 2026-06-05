@@ -74,30 +74,35 @@ const DashboardPage = () => {
     );
   }
 
-  // Aggregate stats or fallback to design values
-  const totalQueries = Math.max(dbData?.total_queries || 0, 21);
-  const medicalCount = dbData?.stats?.medical ?? 9;
-  const agricultureCount = dbData?.stats?.agriculture ?? 7;
-  const studentCount = dbData?.stats?.student ?? 5;
-  const financeCount = dbData?.stats?.finance ?? 0;
+  // Aggregate stats using REAL data only
+  const totalQueries = dbData?.total_queries || 0;
+  const medicalCount = dbData?.stats?.medical || 0;
+  const agricultureCount = dbData?.stats?.agriculture || 0;
+  const studentCount = dbData?.stats?.student || 0;
+  const financeCount = dbData?.stats?.finance || 0;
+  
+  // Calculate active models
+  const activeModelsCount = [medicalCount, agricultureCount, studentCount, financeCount].filter(v => v > 0).length;
+  // Calculate total images processed (Medical + Agriculture usually use images)
+  const imagesProcessed = medicalCount + agricultureCount;
 
   // Overview Stats Data
   const statsOverview = [
     {
       label: 'Total Interactions',
       value: totalQueries,
-      trend: '+12% from last week',
-      isUp: true,
+      trend: totalQueries > 0 ? '+1 from last session' : 'Awaiting first query',
+      isUp: totalQueries > 0,
       color: 'from-cyan-500 to-blue-500',
       shadow: 'shadow-cyan-500/20',
       icon: TrendingUp,
       iconColor: 'text-cyan-400'
     },
     {
-      label: 'AI Models Used',
-      value: 9,
-      trend: '+8% from last week',
-      isUp: true,
+      label: 'AI Hubs Active',
+      value: activeModelsCount,
+      trend: 'Based on usage',
+      isUp: activeModelsCount > 0,
       color: 'from-pink-500 to-purple-500',
       shadow: 'shadow-pink-500/20',
       icon: Cpu,
@@ -105,8 +110,8 @@ const DashboardPage = () => {
     },
     {
       label: 'Avg. Confidence',
-      value: '87.4%',
-      trend: '+5.6% from last week',
+      value: totalQueries > 0 ? 'Evaluating' : '—',
+      trend: 'Analyzing real-time data',
       isUp: true,
       color: 'from-green-500 to-emerald-500',
       shadow: 'shadow-green-500/20',
@@ -115,8 +120,8 @@ const DashboardPage = () => {
     },
     {
       label: 'Reports Generated',
-      value: 41,
-      trend: '+15% from last week',
+      value: totalQueries,
+      trend: 'Live updates',
       isUp: true,
       color: 'from-yellow-500 to-amber-500',
       shadow: 'shadow-yellow-500/20',
@@ -125,8 +130,8 @@ const DashboardPage = () => {
     },
     {
       label: 'Images Processed',
-      value: 124,
-      trend: '+18% from last week',
+      value: imagesProcessed,
+      trend: 'Medical & Agriculture',
       isUp: true,
       color: 'from-blue-500 to-indigo-500',
       shadow: 'shadow-blue-500/20',
@@ -137,11 +142,15 @@ const DashboardPage = () => {
 
   // Hub breakdown data for Donut Chart
   const donutData = [
-    { name: 'Medical AI', value: medicalCount, color: '#EF4444', share: '43%', trend: '↑ 12%' },
-    { name: 'Agriculture AI', value: agricultureCount, color: '#10B981', share: '33%', trend: '↑ 5%' },
-    { name: 'Student AI', value: studentCount, color: '#3B82F6', share: '24%', trend: '↑ 8%' },
-    { name: 'Finance AI', value: financeCount, color: '#F59E0B', share: '0%', trend: '—' }
-  ].filter(item => item.value >= 0);
+    { name: 'Medical AI', value: medicalCount, color: '#EF4444', share: totalQueries ? Math.round((medicalCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: 'Agriculture AI', value: agricultureCount, color: '#10B981', share: totalQueries ? Math.round((agricultureCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: 'Student AI', value: studentCount, color: '#3B82F6', share: totalQueries ? Math.round((studentCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: 'Finance AI', value: financeCount, color: '#F59E0B', share: totalQueries ? Math.round((financeCount/totalQueries)*100)+'%' : '0%', trend: '—' }
+  ].filter(item => item.value > 0);
+  
+  if (donutData.length === 0) {
+      donutData.push({ name: 'No Data Yet', value: 1, color: '#4B5563', share: '100%', trend: '—' });
+  }
 
   // Line Chart Data
   const trendData = [
@@ -191,44 +200,48 @@ const DashboardPage = () => {
     { name: 'Finance AI', value: 12, color: 'bg-yellow-500', glow: 'shadow-yellow-500/50' }
   ];
 
-  // Structured Timeline Data
-  const timelineActivities = [
-    {
-      title: 'Medical scan completed',
-      details: 'Chest X-ray analysis',
-      time: '2 mins ago',
-      color: 'bg-red-500 shadow-red-500/50',
-      icon: Activity
-    },
-    {
-      title: 'Plant disease detected',
-      details: 'Tomato – Early blight',
-      time: '8 mins ago',
-      color: 'bg-green-500 shadow-green-500/50',
-      icon: Sprout
-    },
-    {
-      title: 'Student roadmap generated',
-      details: 'AI/ML Career Path',
-      time: '15 mins ago',
-      color: 'bg-blue-500 shadow-blue-500/50',
-      icon: GraduationCap
-    },
-    {
-      title: 'Financial report generated',
-      details: 'Expense analysis report',
-      time: '20 mins ago',
-      color: 'bg-yellow-500 shadow-yellow-500/50',
-      icon: Wallet
-    },
-    {
-      title: 'Medical report generated',
-      details: 'Diabetes prediction report',
-      time: '35 mins ago',
-      color: 'bg-red-500 shadow-red-500/50',
-      icon: Activity
+  // Map Real Recent Activity from Backend
+  const formatTimeAgo = (isoString) => {
+    if (!isoString) return 'Just now';
+    const seconds = Math.floor((new Date() - new Date(isoString)) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
+
+  const getDomainStyles = (domain) => {
+    switch (domain) {
+      case 'medical': return { color: 'bg-red-500 shadow-red-500/50', icon: Activity };
+      case 'agriculture': return { color: 'bg-green-500 shadow-green-500/50', icon: Sprout };
+      case 'student': return { color: 'bg-blue-500 shadow-blue-500/50', icon: GraduationCap };
+      case 'finance': return { color: 'bg-yellow-500 shadow-yellow-500/50', icon: Wallet };
+      default: return { color: 'bg-cyan-500 shadow-cyan-500/50', icon: Activity };
     }
-  ];
+  };
+
+  let timelineActivities = (dbData?.recent_activity || []).map(act => {
+    const styles = getDomainStyles(act.domain);
+    return {
+      title: `${act.domain.charAt(0).toUpperCase() + act.domain.slice(1)} AI Query`,
+      details: act.model,
+      time: formatTimeAgo(act.timestamp),
+      color: styles.color,
+      icon: styles.icon
+    };
+  });
+
+  if (timelineActivities.length === 0) {
+      timelineActivities = [{
+          title: 'Welcome to your ecosystem',
+          details: 'Waiting for your first AI interaction...',
+          time: 'Now',
+          color: 'bg-cyan-500 shadow-cyan-500/50',
+          icon: Sparkles
+      }];
+  }
 
   return (
     <Layout>
