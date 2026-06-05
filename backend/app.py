@@ -4,6 +4,19 @@ from flask_cors import CORS
 from config import config
 from extensions import mongo, bcrypt, jwt
 
+class PrefixMiddleware(object):
+    def __init__(self, app, prefix='/api'):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        path = environ.get('PATH_INFO', '')
+        # Store original path info for diagnostics
+        environ['ORIGINAL_PATH_INFO'] = path
+        if not path.startswith(self.prefix):
+            environ['PATH_INFO'] = self.prefix + path
+        return self.app(environ, start_response)
+
 def create_app():
     app = Flask(__name__)
     # Allow CORS for all domains for now, supports credentials
@@ -39,13 +52,18 @@ def create_app():
     app.register_blueprint(billing_bp, url_prefix='/api/billing')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
+    # Apply PrefixMiddleware
+    app.wsgi_app = PrefixMiddleware(app.wsgi_app)
+    
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def catch_all(path):
         from flask import request, jsonify
+        original_path = request.environ.get('ORIGINAL_PATH_INFO', path)
         return jsonify({
             "error": "Flask Route Not Found",
             "received_path": path,
+            "original_path": original_path,
             "request_path": request.path,
             "request_url": request.url,
             "blueprints": list(app.blueprints.keys())
