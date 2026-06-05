@@ -1,29 +1,12 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/app.py",
-      "use": "@vercel/python"
+  "experimentalServices": {
+    "backend": {
+      "entrypoint": "backend/app.py",
+      "routePrefix": "/api"
     },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+    "frontend": {
+      "entrypoint": "frontend",
+      "routePrefix": "/"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/app.py"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/index.html"
-    }
-  ]
+  }
 }
