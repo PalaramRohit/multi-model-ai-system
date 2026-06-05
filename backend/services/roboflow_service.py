@@ -1,15 +1,12 @@
 
-from inference_sdk import InferenceHTTPClient
+import base64
+import requests
 from config import config
 
 class RoboflowService:
     def __init__(self):
         self.api_key = config.ROBOFLOW_API_KEY
-        self.api_url = config.ROBOFLOW_API_URL
-        self.client = InferenceHTTPClient(
-            api_url=self.api_url,
-            api_key=self.api_key
-        )
+        self.api_url = config.ROBOFLOW_API_URL or "https://serverless.roboflow.com"
 
     def get_inference(self, model_name, image_path):
         """
@@ -22,16 +19,33 @@ class RoboflowService:
         
         if model_config.get('type') == 'workflow':
             try:
-                # Use inference-sdk for workflow
-                result = self.client.run_workflow(
-                    workspace_name=model_config['workspace_name'],
-                    workflow_id=model_config['workflow_id'],
-                    images={
-                        "image": image_path
-                    },
-                    use_cache=True
-                )
-                return result
+                workspace_name = model_config['workspace_name']
+                workflow_id = model_config['workflow_id']
+                
+                # Read local image and encode to base64
+                with open(image_path, "rb") as image_file:
+                    image_data = base64.b64encode(image_file.read()).decode("utf-8")
+                
+                # Prepare payload
+                payload = {
+                    "api_key": self.api_key,
+                    "inputs": {
+                        "image": {
+                            "type": "base64",
+                            "value": image_data
+                        }
+                    }
+                }
+                
+                # API Endpoint URL
+                url = f"{self.api_url}/infer/workflows/{workspace_name}/{workflow_id}"
+                response = requests.post(url, json=payload, timeout=30)
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    raise Exception(f"Roboflow API error {response.status_code}: {response.text}")
+                    
             except Exception as e:
                 print(f"Roboflow Workflow Error: {e}")
                 raise e # Re-raise to be caught by route handler

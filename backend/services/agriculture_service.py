@@ -1,9 +1,10 @@
 import os
 import json
+import base64
+import requests
 from extensions import mongo
 from datetime import datetime
 from PIL import Image
-from inference_sdk import InferenceHTTPClient
 from google import genai
 
 from services.cerebras_service import cerebras_service
@@ -15,15 +16,7 @@ class AgricultureService:
         self.rf_api_key = os.getenv('ROBOFLOW_API_KEY')
         self.workspace_name = "multimodelai-2dvdi"
         self.workflow_id = "custom-workflow-6"
-        
-        try:
-            self.client = InferenceHTTPClient(
-                api_url="https://detect.roboflow.com",
-                api_key=self.rf_api_key
-            )
-        except Exception as e:
-            print(f"Warning: Failed to initialize Roboflow Client: {e}")
-            self.client = None
+        self.api_url = "https://serverless.roboflow.com"
 
         # Gemini Configuration using new SDK
         self.gemini_api_key = os.getenv('GEMINI_API_KEY')
@@ -43,21 +36,33 @@ class AgricultureService:
         """
         Analyzes a crop image using 3-Model Hybrid (Roboflow + Llama + Gemini).
         """
-        if not self.client: return "Error: Roboflow Service unavailable"
-
         try:
-            # 1. Run Roboflow Workflow
-            result = self.client.run_workflow(
-                workspace_name=self.workspace_name,
-                workflow_id=self.workflow_id,
-                images={"image": image_path}
-            )
+            # 1. Run Roboflow Workflow via REST API
+            with open(image_path, "rb") as image_file:
+                image_data = base64.b64encode(image_file.read()).decode("utf-8")
+            
+            payload = {
+                "api_key": self.rf_api_key,
+                "inputs": {
+                    "image": {
+                        "type": "base64",
+                        "value": image_data
+                    }
+                }
+            }
+            
+            url = f"{self.api_url}/infer/workflows/{self.workspace_name}/{self.workflow_id}"
+            response = requests.post(url, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+            else:
+                raise Exception(f"Roboflow API error {response.status_code}: {response.text}")
             workflow_output_str = json.dumps(result, indent=2)
 
             # 2. Llama Perspective
             llama_prompt = f"""
             Analyze this Agriculture Vision Output for a farmer:
-            {workflow_output_str}
             Farmer's Note: {user_notes}
             
             Provide a technical agricultural assessment of the disease/pest.

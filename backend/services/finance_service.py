@@ -1,6 +1,7 @@
-import pandas as pd
+import csv
 import json
 import os
+import re
 from google import genai
 from datetime import datetime
 
@@ -26,22 +27,56 @@ class FinanceService:
     def parse_transactions(self, file_path):
         """Parses the transactions CSV."""
         try:
-            df = pd.read_csv(file_path)
-            if 'Date' in df.columns:
-                df['Date'] = pd.to_datetime(df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
-            if 'Amount' in df.columns:
-                df['Amount'] = df['Amount'].replace(r'[\$,]', '', regex=True).astype(float)
-            return df
+            transactions = []
+            with open(file_path, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    # Clean and format Date
+                    if 'Date' in row and row['Date']:
+                        try:
+                            date_str = row['Date'].strip()
+                            for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%Y/%m/%d'):
+                                try:
+                                    dt = datetime.strptime(date_str, fmt)
+                                    row['Date'] = dt.strftime('%Y-%m-%d')
+                                    break
+                                except ValueError:
+                                    continue
+                        except Exception:
+                            pass
+                    
+                    # Clean and format Amount
+                    if 'Amount' in row and row['Amount']:
+                        try:
+                            amt_str = re.sub(r'[\$,]', '', row['Amount'])
+                            row['Amount'] = float(amt_str)
+                        except ValueError:
+                            row['Amount'] = 0.0
+                    elif 'Amount' in row:
+                        row['Amount'] = 0.0
+                    
+                    transactions.append(row)
+            return transactions
         except Exception as e:
             raise ValueError(f"Error parsing transactions: {e}")
 
     def parse_budget(self, file_path):
         """Parses the budget CSV."""
         try:
-            df = pd.read_csv(file_path)
-            if 'Budget' in df.columns:
-                 df['Budget'] = df['Budget'].replace(r'[\$,]', '', regex=True).astype(float)
-            return df
+            budget = []
+            with open(file_path, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    if 'Budget' in row and row['Budget']:
+                        try:
+                            b_str = re.sub(r'[\$,]', '', row['Budget'])
+                            row['Budget'] = float(b_str)
+                        except ValueError:
+                            row['Budget'] = 0.0
+                    elif 'Budget' in row:
+                        row['Budget'] = 0.0
+                    budget.append(row)
+            return budget
         except Exception as e:
             raise ValueError(f"Error parsing budget: {e}")
 
@@ -50,19 +85,56 @@ class FinanceService:
         Hybrid Financial Advisor (Llama + Gemini).
         """
         try:
-            df_trans = self.parse_transactions(transaction_file_path)
-            spending_summary = df_trans[df_trans['Transaction Type'].str.lower() == 'debit']
-            cat_summary = spending_summary.groupby('Category')['Amount'].sum().reset_index() if 'Category' in spending_summary.columns else pd.DataFrame()
+            transactions = self.parse_transactions(transaction_file_path)
+            
+            # Filtering spending_summary (type == debit)
+            spending_summary = [
+                row for row in transactions 
+                if row.get('Transaction Type', '').strip().lower() == 'debit'
+            ]
+            
+            # Grouping by Category
+            cat_amounts = {}
+            for row in spending_summary:
+                cat = row.get('Category', 'Unknown').strip()
+                if not cat:
+                    cat = 'Unknown'
+                amt = row.get('Amount', 0.0)
+                cat_amounts[cat] = cat_amounts.get(cat, 0.0) + amt
+            
+            cat_summary = [
+                {'Category': cat, 'Amount': amt} 
+                for cat, amt in cat_amounts.items()
+            ]
 
             budget_data_str = ""
             if budget_file_path:
-                df_budget = self.parse_budget(budget_file_path)
-                merged = pd.merge(cat_summary, df_budget, on='Category', how='outer').fillna(0)
-                merged.rename(columns={'Amount': 'Actual', 'Budget': 'Limit'}, inplace=True)
-                merged['Variance'] = merged['Limit'] - merged['Actual']
-                budget_data_str = json.dumps(merged.to_dict('records'), indent=2)
+                budget_rows = self.parse_budget(budget_file_path)
+                
+                # Perform outer join on Category
+                merged_map = {}
+                for row in budget_rows:
+                    cat = row.get('Category', '').strip()
+                    if cat:
+                        limit = row.get('Budget', 0.0)
+                        merged_map[cat] = {'Category': cat, 'Actual': 0.0, 'Limit': limit}
+                
+                for row in cat_summary:
+                    cat = row.get('Category', '').strip()
+                    actual = row.get('Amount', 0.0)
+                    if cat:
+                        if cat in merged_map:
+                            merged_map[cat]['Actual'] = actual
+                        else:
+                            merged_map[cat] = {'Category': cat, 'Actual': actual, 'Limit': 0.0}
+                
+                merged = list(merged_map.values())
+                for row in merged:
+                    row['Variance'] = row['Limit'] - row['Actual']
+                
+                budget_data_str = json.dumps(merged, indent=2)
             else:
-                budget_data_str = json.dumps(cat_summary.to_dict('records'), indent=2)
+                budget_data_str = json.dumps(cat_summary, indent=2)
 
             # 1. Llama Analysis
             llama_prompt = f"Analyze this financial data: {budget_data_str}. Goal: {user_goals}"
