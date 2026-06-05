@@ -55,6 +55,11 @@ def create_app():
     # Apply PrefixMiddleware
     app.wsgi_app = PrefixMiddleware(app.wsgi_app)
     
+    @app.route('/api/health', methods=['GET'])
+    def health_check():
+        from flask import jsonify
+        return jsonify({"status": "healthy"}), 200
+    
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def catch_all(path):
