@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from extensions import mongo, bcrypt, jwt
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from bson.objectid import ObjectId
@@ -36,13 +36,12 @@ def register():
         return jsonify({"message": "User created successfully"}), 201
 
     except Exception as e:
-        import os
-        mongo_uri = os.getenv('MONGO_URI', 'NOT SET')
+        mongo_uri = current_app.config.get('MONGO_URI', '')
         is_localhost = 'localhost' in mongo_uri or '127.0.0.1' in mongo_uri
-        if is_localhost:
+        if is_localhost or not mongo_uri:
             return jsonify({
                 "error": "Database not configured for production",
-                "detail": "MONGO_URI is set to localhost. Set MONGO_URI to a MongoDB Atlas connection string in Vercel Environment Variables.",
+                "detail": "MONGO_URI environment variable is missing or set to localhost. Set MONGO_URI to a MongoDB Atlas connection string in Vercel Environment Variables.",
                 "fix": "Go to Vercel Dashboard > Your Project > Settings > Environment Variables > Add MONGO_URI"
             }), 503
         return jsonify({"error": "Database error. Please try again later.", "detail": str(e)}), 503
@@ -70,11 +69,12 @@ def login():
         else:
             return jsonify({"error": "Invalid email or password"}), 401
     except Exception as e:
-        import os
-        if 'localhost' in os.getenv('MONGO_URI', '') or '127.0.0.1' in os.getenv('MONGO_URI', ''):
+        mongo_uri = current_app.config.get('MONGO_URI', '')
+        is_localhost = 'localhost' in mongo_uri or '127.0.0.1' in mongo_uri
+        if is_localhost or not mongo_uri:
             return jsonify({
                 "error": "Database not configured for production",
-                "detail": "MONGO_URI must be set to a MongoDB Atlas URI in Vercel Environment Variables."
+                "detail": "MONGO_URI environment variable is missing or set to localhost. Set MONGO_URI to a MongoDB Atlas connection string in Vercel Environment Variables."
             }), 503
         return jsonify({"error": "Database error. Please try again later."}), 503
 
