@@ -1,0 +1,24 @@
+[
+  {
+    "predictions": {
+      "confidence": 0.9907,
+      "image": {
+        "height": 730,
+        "width": 1024
+      },
+      "inference_id": "608c7d4b-f8c6-4f11-814b-2eb034318004",
+      "parent_id": "image",
+      "prediction_type": "classification",
+      "predictions": [
+        {
+          "class": "PNEUMONIA",
+          "class_id": 1,
+          "confidence": 0.9907
+        }
+      ],
+      "root_parent_id": "image",
+      "time": 0.018342817995289806,
+      "top": "PNEUMONIA"
+    }
+  }
+]

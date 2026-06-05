@@ -1,0 +1,13 @@
+flask==2.3.3
+requests
+python-dotenv==1.0.0
+inference-sdk
+flask-cors==4.0.0
+google-genai
+flask-pymongo<3.0
+dnspython
+flask-bcrypt
+flask-jwt-extended
+pypdf
+pandas
+gtts

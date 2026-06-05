@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-blue text-white antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg;
+  }
+  
+  .neon-glow {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-neon-blue to-neon-cyan text-white font-semibold px-6 py-3 rounded-xl 
+           transition-all duration-300 transform hover:scale-105;
+    box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+  }
+  
+  .btn-secondary {
+    @apply bg-navy border border-neon-cyan/30 text-neon-cyan font-semibold px-6 py-3 rounded-xl 
+           hover:bg-neon-cyan/10 hover:border-neon-cyan transition-all duration-300;
+  }
+  
+  .input-field {
+    @apply bg-navy/50 border border-white/10 rounded-xl px-4 py-3 text-white 
+           placeholder:text-white/40 focus:outline-none focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan/50;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-blue;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neon-cyan/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-neon-cyan/50;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

@@ -1,0 +1,26 @@
+# Exclude documentation directory (user request)
+documentation/
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node Modules & Build outputs
+node_modules/
+dist/
+frontend/node_modules/
+frontend/dist/
+.env
+backend/.env
+frontend/.env
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
