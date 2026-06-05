@@ -70,7 +70,25 @@ def create_app():
     # ── Health check ────────────────────────────────────────────────────────
     @app.route('/api/health', methods=['GET'])
     def health_check():
-        return jsonify({"status": "healthy", "service": "MultiModAI Backend"}), 200
+        import os
+        mongo_uri = app.config.get('MONGO_URI', '')
+        is_localhost = 'localhost' in mongo_uri or '127.0.0.1' in mongo_uri
+        db_status = "unknown"
+        db_error = None
+        try:
+            mongo.db.command('ping')
+            db_status = "connected"
+        except Exception as e:
+            db_status = "error"
+            db_error = str(e)
+        return jsonify({
+            "status": "healthy",
+            "service": "MultiModAI Backend",
+            "db_status": db_status,
+            "db_type": "localhost" if is_localhost else "atlas",
+            "db_error": db_error,
+            "mongo_uri_set": bool(mongo_uri),
+        }), 200
 
     # ── Catch-all diagnostic (must be LAST) ─────────────────────────────────
     @app.route('/', defaults={'path': ''})

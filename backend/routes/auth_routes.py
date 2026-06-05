@@ -41,10 +41,10 @@ def register():
         if is_localhost or not mongo_uri:
             return jsonify({
                 "error": "Database not configured for production",
-                "detail": "MONGO_URI environment variable is missing or set to localhost. Set MONGO_URI to a MongoDB Atlas connection string in Vercel Environment Variables.",
-                "fix": "Go to Vercel Dashboard > Your Project > Settings > Environment Variables > Add MONGO_URI"
+                "detail": "MONGO_URI is set to localhost. Use a MongoDB Atlas connection string in Vercel Environment Variables.",
+                "fix": "Go to Vercel Dashboard > Settings > Environment Variables > Edit MONGO_URI"
             }), 503
-        return jsonify({"error": "Database error. Please try again later.", "detail": str(e)}), 503
+        return jsonify({"error": "Database connection failed", "detail": str(e)}), 503
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -74,9 +74,9 @@ def login():
         if is_localhost or not mongo_uri:
             return jsonify({
                 "error": "Database not configured for production",
-                "detail": "MONGO_URI environment variable is missing or set to localhost. Set MONGO_URI to a MongoDB Atlas connection string in Vercel Environment Variables."
+                "detail": "MONGO_URI is set to localhost. Use a MongoDB Atlas connection string in Vercel Environment Variables."
             }), 503
-        return jsonify({"error": "Database error. Please try again later."}), 503
+        return jsonify({"error": "Database connection failed", "detail": str(e)}), 503
 
 @auth_bp.route('/me', methods=['GET'])
 @jwt_required()
@@ -96,7 +96,7 @@ def get_current_user():
         else:
             return jsonify({"error": "User not found"}), 404
     except Exception as e:
-        return jsonify({"error": "Database error. Please try again later."}), 503
+        return jsonify({"error": "Database connection failed", "detail": str(e)}), 503
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
