@@ -39,6 +39,18 @@ def create_app():
     app.register_blueprint(billing_bp, url_prefix='/api/billing')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def catch_all(path):
+        from flask import request, jsonify
+        return jsonify({
+            "error": "Flask Route Not Found",
+            "received_path": path,
+            "request_path": request.path,
+            "request_url": request.url,
+            "blueprints": list(app.blueprints.keys())
+        }), 404
+
     return app
 
 app = create_app()
