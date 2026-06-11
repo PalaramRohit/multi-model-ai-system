@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 700">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <path fill="#22c55e" fill-opacity="0.2" stroke="#22c55e" stroke-width="2" filter="url(#glow)" d="M290,10 L330,30 L350,20 L380,50 L420,60 L450,100 L430,130 L450,150 L480,160 L500,190 L480,220 L450,230 L430,260 L440,290 L420,320 L400,350 L380,380 L360,450 L340,550 L320,600 L300,650 L280,600 L260,550 L240,480 L220,420 L200,380 L150,350 L100,320 L50,280 L80,250 L120,220 L150,180 L180,150 L220,120 L250,80 L290,10 Z" />
+  <!-- Abstract dots for regions -->
+  <circle cx="300" cy="200" r="3" fill="#ffffff" opacity="0.5" />
+  <circle cx="250" cy="300" r="3" fill="#ffffff" opacity="0.5" />
+  <circle cx="350" cy="350" r="3" fill="#ffffff" opacity="0.5" />
+  <circle cx="300" cy="450" r="3" fill="#ffffff" opacity="0.5" />
+  <circle cx="280" cy="100" r="3" fill="#ffffff" opacity="0.5" />
+</svg>
