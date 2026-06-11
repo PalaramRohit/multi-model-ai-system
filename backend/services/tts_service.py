@@ -1,12 +1,21 @@
 import os
 import uuid
-from gtts import gTTS
+try:
+    from gtts import gTTS
+    GTTS_AVAILABLE = True
+except ImportError:
+    GTTS_AVAILABLE = False
 
 class TTSService:
     def __init__(self):
-        self.output_dir = os.path.join(os.getcwd(), 'static', 'audio')
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        # Use /tmp on Vercel (only writable dir in serverless), fallback to local static
+        self.output_dir = '/tmp/audio' if os.getenv('VERCEL') else os.path.join(os.getcwd(), 'static', 'audio')
+        try:
+            os.makedirs(self.output_dir, exist_ok=True)
+        except Exception:
+            self.output_dir = '/tmp/audio'
+            os.makedirs(self.output_dir, exist_ok=True)
+
 
     def generate_audio_gtts(self, text, language='en'):
         """
