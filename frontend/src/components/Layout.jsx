@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useNotifications } from '../context/NotificationContext.jsx';
 import { LanguageSwitcher } from './LanguageSwitcher.jsx';
 import {
   LayoutDashboard,
@@ -15,7 +16,11 @@ import {
   BookOpen,
   Menu,
   X,
-  ShieldAlert
+  ShieldAlert,
+  Sparkles,
+  Bell,
+  Trash2,
+  Clock
 } from 'lucide-react';
 
 export const Layout = ({ children }) => {
@@ -23,7 +28,10 @@ export const Layout = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const { notifications, clearAllNotifications, removeNotification, addNotification } = useNotifications();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notiOpen, setNotiOpen] = useState(false);
 
   const menuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
@@ -32,14 +40,29 @@ export const Layout = ({ children }) => {
     { path: '/finance', icon: Wallet, label: t('landing.hubs.finance') },
     { path: '/student', icon: GraduationCap, label: t('landing.hubs.student') },
     { path: '/history', icon: History, label: t('nav.history') },
-    { path: '/guide', icon: BookOpen, label: 'User Guide' },
-    { path: '/admin', icon: ShieldAlert, label: 'Admin Console' },
+    { path: '/guide', icon: BookOpen, label: t('nav.guide') },
+    { path: '/admin', icon: ShieldAlert, label: t('nav.admin') },
     { path: '/settings', icon: Settings, label: t('nav.settings') },
   ];
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      addNotification('Logging out...', 'info');
+      await logout();
+      navigate('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      navigate('/login');
+    }
+  };
+
+  const formatNotiTime = (isoString) => {
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
   };
 
   return (
@@ -114,7 +137,76 @@ export const Layout = ({ children }) => {
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-4 relative">
+            {/* Real-time Notification Bell Drawer */}
+            <div className="relative">
+              <button
+                onClick={() => setNotiOpen(!notiOpen)}
+                className="relative p-2 text-white/60 hover:text-white rounded-xl hover:bg-white/5 transition-all"
+              >
+                <Bell className="w-5 h-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-cyan opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-neon-cyan"></span>
+                  </span>
+                )}
+              </button>
+
+              {notiOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setNotiOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-3 w-80 bg-navy-light/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden animate-slide-up">
+                    <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-neon-cyan" />
+                        <h4 className="font-bold text-sm text-white">Live Event Log</h4>
+                      </div>
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={clearAllNotifications}
+                          className="text-xs text-white/40 hover:text-red-400 transition-colors flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Clear All
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto divide-y divide-white/5">
+                      {notifications.length > 0 ? (
+                        notifications.map((noti) => (
+                          <div key={noti.id} className="p-3.5 flex items-start gap-2.5 group relative hover:bg-white/[0.02]">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-white/80 leading-normal font-medium">{noti.message}</p>
+                              <span className="text-[10px] text-white/30 font-semibold flex items-center gap-1 mt-1">
+                                <Clock className="w-2.5 h-2.5" />
+                                {formatNotiTime(noti.timestamp)}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => removeNotification(noti.id)}
+                              className="text-white/20 hover:text-white absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-10 text-center text-white/40">
+                          <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                          <p className="text-xs">No recent notifications</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             <LanguageSwitcher />
           </div>
         </header>

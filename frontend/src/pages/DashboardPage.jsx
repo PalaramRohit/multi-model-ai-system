@@ -89,9 +89,9 @@ const DashboardPage = () => {
   // Overview Stats Data
   const statsOverview = [
     {
-      label: 'Total Interactions',
+      label: t('dashboard.totalInteractions'),
       value: totalQueries,
-      trend: totalQueries > 0 ? '+1 from last session' : 'Awaiting first query',
+      trend: totalQueries > 0 ? '+1 from last session' : t('dashboard.awaitingQuery'),
       isUp: totalQueries > 0,
       color: 'from-cyan-500 to-blue-500',
       shadow: 'shadow-cyan-500/20',
@@ -99,9 +99,9 @@ const DashboardPage = () => {
       iconColor: 'text-cyan-400'
     },
     {
-      label: 'AI Hubs Active',
+      label: t('dashboard.activeHubs'),
       value: activeModelsCount,
-      trend: 'Based on usage',
+      trend: t('dashboard.basedOnUsage'),
       isUp: activeModelsCount > 0,
       color: 'from-pink-500 to-purple-500',
       shadow: 'shadow-pink-500/20',
@@ -109,9 +109,9 @@ const DashboardPage = () => {
       iconColor: 'text-pink-400'
     },
     {
-      label: 'Avg. Confidence',
-      value: totalQueries > 0 ? 'Evaluating' : '—',
-      trend: 'Analyzing real-time data',
+      label: t('dashboard.avgConfidence'),
+      value: totalQueries > 0 ? t('dashboard.analyzingData').split(' ')[0] : '—',
+      trend: t('dashboard.analyzingData'),
       isUp: true,
       color: 'from-green-500 to-emerald-500',
       shadow: 'shadow-green-500/20',
@@ -119,9 +119,9 @@ const DashboardPage = () => {
       iconColor: 'text-green-400'
     },
     {
-      label: 'Reports Generated',
+      label: t('dashboard.reportsGenerated'),
       value: totalQueries,
-      trend: 'Live updates',
+      trend: t('dashboard.liveUpdates'),
       isUp: true,
       color: 'from-yellow-500 to-amber-500',
       shadow: 'shadow-yellow-500/20',
@@ -129,9 +129,9 @@ const DashboardPage = () => {
       iconColor: 'text-yellow-400'
     },
     {
-      label: 'Images Processed',
+      label: t('dashboard.imagesProcessed'),
       value: imagesProcessed,
-      trend: 'Medical & Agriculture',
+      trend: t('dashboard.medAgri'),
       isUp: true,
       color: 'from-blue-500 to-indigo-500',
       shadow: 'shadow-blue-500/20',
@@ -142,74 +142,75 @@ const DashboardPage = () => {
 
   // Hub breakdown data for Donut Chart
   const donutData = [
-    { name: 'Medical AI', value: medicalCount, color: '#EF4444', share: totalQueries ? Math.round((medicalCount/totalQueries)*100)+'%' : '0%', trend: '—' },
-    { name: 'Agriculture AI', value: agricultureCount, color: '#10B981', share: totalQueries ? Math.round((agricultureCount/totalQueries)*100)+'%' : '0%', trend: '—' },
-    { name: 'Student AI', value: studentCount, color: '#3B82F6', share: totalQueries ? Math.round((studentCount/totalQueries)*100)+'%' : '0%', trend: '—' },
-    { name: 'Finance AI', value: financeCount, color: '#F59E0B', share: totalQueries ? Math.round((financeCount/totalQueries)*100)+'%' : '0%', trend: '—' }
+    { name: t('landing.hubs.medical'), value: medicalCount, color: '#EF4444', share: totalQueries ? Math.round((medicalCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: t('landing.hubs.agriculture'), value: agricultureCount, color: '#10B981', share: totalQueries ? Math.round((agricultureCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: t('landing.hubs.student'), value: studentCount, color: '#3B82F6', share: totalQueries ? Math.round((studentCount/totalQueries)*100)+'%' : '0%', trend: '—' },
+    { name: t('landing.hubs.finance'), value: financeCount, color: '#F59E0B', share: totalQueries ? Math.round((financeCount/totalQueries)*100)+'%' : '0%', trend: '—' }
   ].filter(item => item.value > 0);
   
   if (donutData.length === 0) {
-      donutData.push({ name: 'No Data Yet', value: 1, color: '#4B5563', share: '100%', trend: '—' });
+      donutData.push({ name: language === 'te' ? 'డేటా లేదు' : language === 'hi' ? 'कोई डेटा नहीं' : 'No Data Yet', value: 1, color: '#4B5563', share: '100%', trend: '—' });
   }
 
   // Line Chart Data
   const trendData = [
-    { name: 'Week 1', confidence: 78 },
-    { name: 'Week 2', confidence: 81 },
-    { name: 'Week 3', confidence: 84 },
-    { name: 'Week 4', confidence: 87 }
+    { name: t('dashboard.week1'), confidence: 78 },
+    { name: t('dashboard.week2'), confidence: 81 },
+    { name: t('dashboard.week3'), confidence: 84 },
+    { name: t('dashboard.week4'), confidence: 87 }
   ];
 
   // Insights Data
   const insights = [
     {
-      title: 'Most Used Hub',
-      value: 'Medical AI',
-      sub: '43% usage',
-      trend: '↑ 12% from last week',
+      title: t('dashboard.mostUsedHub'),
+      value: t('dashboard.mostUsedValue'),
+      sub: `43% ${language === 'te' ? 'వినియోగం' : language === 'hi' ? 'उपयोग' : 'usage'}`,
+      trend: `↑ 12% ${language === 'te' ? 'గత వారం నుండి' : language === 'hi' ? 'पिछले सप्ताह से' : 'from last week'}`,
       color: 'text-red-400'
     },
     {
-      title: 'Highest Confidence',
+      title: t('dashboard.highestConfidence'),
       value: '87.4%',
-      sub: 'Average across all models',
-      trend: '↑ 5.6% from last week',
+      sub: t('dashboard.avgConfidenceValue'),
+      trend: `↑ 5.6% ${language === 'te' ? 'గత వారం నుండి' : language === 'hi' ? 'पिछले सप्ताह से' : 'from last week'}`,
       color: 'text-green-400'
     },
     {
-      title: 'Peak Activity Time',
-      value: '4:00 PM – 7:00 PM',
-      sub: 'Most active hours',
-      trend: 'Stable range',
+      title: t('dashboard.peakActivityTime'),
+      value: t('dashboard.peakTimeValue'),
+      sub: t('dashboard.peakTimeSub'),
+      trend: language === 'te' ? 'స్థిరమైన పరిధి' : language === 'hi' ? 'स्थिर सीमा' : 'Stable range',
       color: 'text-yellow-400'
     },
     {
-      title: 'User Productivity Score',
+      title: t('dashboard.productivityScore'),
       value: '78 / 100',
-      sub: 'Great job! Keep it up 🚀',
-      trend: '↑ 9% from last week',
+      sub: t('dashboard.productivitySub'),
+      trend: `↑ 9% ${language === 'te' ? 'గత వారం నుండి' : language === 'hi' ? 'पिछले सप्ताह से' : 'from last week'}`,
       color: 'text-blue-400'
     }
   ];
 
   // Progress Bar Data
   const hubPerformance = [
-    { name: 'Medical AI', value: 90, color: 'bg-red-500', glow: 'shadow-red-500/50' },
-    { name: 'Agriculture AI', value: 72, color: 'bg-emerald-500', glow: 'shadow-emerald-500/50' },
-    { name: 'Student AI', value: 54, color: 'bg-blue-500', glow: 'shadow-blue-500/50' },
-    { name: 'Finance AI', value: 12, color: 'bg-yellow-500', glow: 'shadow-yellow-500/50' }
+    { name: t('landing.hubs.medical'), value: 90, color: 'bg-red-500', glow: 'shadow-red-500/50' },
+    { name: t('landing.hubs.agriculture'), value: 72, color: 'bg-emerald-500', glow: 'shadow-emerald-500/50' },
+    { name: t('landing.hubs.student'), value: 54, color: 'bg-blue-500', glow: 'shadow-blue-500/50' },
+    { name: t('landing.hubs.finance'), value: 12, color: 'bg-yellow-500', glow: 'shadow-yellow-500/50' }
   ];
 
   // Map Real Recent Activity from Backend
   const formatTimeAgo = (isoString) => {
-    if (!isoString) return 'Just now';
+    if (!isoString) return language === 'te' ? 'ఇప్పుడే' : language === 'hi' ? 'अभी-अभी' : 'Just now';
     const seconds = Math.floor((new Date() - new Date(isoString)) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
+    const suffix = language === 'te' ? ' క్రితం' : language === 'hi' ? ' पहले' : ' ago';
+    if (seconds < 60) return `${seconds}s${suffix}`;
     const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return `${minutes}m${suffix}`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (hours < 24) return `${hours}h${suffix}`;
+    return `${Math.floor(hours / 24)}d${suffix}`;
   };
 
   const getDomainStyles = (domain) => {
@@ -224,8 +225,13 @@ const DashboardPage = () => {
 
   let timelineActivities = (dbData?.recent_activity || []).map(act => {
     const styles = getDomainStyles(act.domain);
+    const translatedDomain = act.domain === 'medical' ? t('landing.hubs.medical') 
+                            : act.domain === 'agriculture' ? t('landing.hubs.agriculture')
+                            : act.domain === 'student' ? t('landing.hubs.student')
+                            : act.domain === 'finance' ? t('landing.hubs.finance')
+                            : act.domain;
     return {
-      title: `${act.domain.charAt(0).toUpperCase() + act.domain.slice(1)} AI Query`,
+      title: `${translatedDomain} Query`,
       details: act.model,
       time: formatTimeAgo(act.timestamp),
       color: styles.color,
@@ -235,9 +241,9 @@ const DashboardPage = () => {
 
   if (timelineActivities.length === 0) {
       timelineActivities = [{
-          title: 'Welcome to your ecosystem',
-          details: 'Waiting for your first AI interaction...',
-          time: 'Now',
+          title: language === 'te' ? 'మీ పర్యావరణ వ్యవస్థకు స్వాగతం' : language === 'hi' ? 'आपके पारिस्थितिकी तंत्र में आपका स्वागत है' : 'Welcome to your ecosystem',
+          details: language === 'te' ? 'మొదటి పరస్పర చర్య కోసం వేచి ఉంది...' : language === 'hi' ? 'पहली बातचीत की प्रतीक्षा है...' : 'Waiting for your first AI interaction...',
+          time: language === 'te' ? 'ఇప్పుడే' : language === 'hi' ? 'अभी' : 'Now',
           color: 'bg-cyan-500 shadow-cyan-500/50',
           icon: Sparkles
       }];
@@ -257,7 +263,7 @@ const DashboardPage = () => {
             <h1 className="text-4xl font-extrabold mb-2 text-white flex items-center gap-2">
               {getGreeting()}, <span className="bg-gradient-to-r from-neon-cyan to-neon-blue bg-clip-text text-transparent">{user?.name || 'Rohit'}</span> 👋
             </h1>
-            <p className="text-white/60 font-medium">Monitor and control your AI ecosystem in real time.</p>
+            <p className="text-white/60 font-medium">{t('dashboard.subtitle')}</p>
           </motion.div>
 
           <motion.div
@@ -272,10 +278,10 @@ const DashboardPage = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-white/40 uppercase tracking-widest font-bold">AI System Status</span>
-                <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-bold">Operational</span>
+                <span className="text-xs text-white/40 uppercase tracking-widest font-bold">{t('dashboard.systemStatus')}</span>
+                <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-bold">{t('dashboard.operational')}</span>
               </div>
-              <p className="text-sm text-white/60 font-medium mt-0.5">All AI services running normally</p>
+              <p className="text-sm text-white/60 font-medium mt-0.5">{t('dashboard.runningNormally')}</p>
             </div>
           </motion.div>
         </div>
@@ -286,7 +292,7 @@ const DashboardPage = () => {
             const Icon = stat.icon;
             return (
               <motion.div
-                key={stat.label}
+                key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: idx * 0.08 }}
@@ -328,7 +334,7 @@ const DashboardPage = () => {
           >
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full flex flex-col justify-between">
               <div>
-                <h2 className="text-xl font-bold mb-6 text-white tracking-wide">AI Hubs Overview</h2>
+                <h2 className="text-xl font-bold mb-6 text-white tracking-wide">{t('landing.hero.explore')}</h2>
                 <div className="flex flex-row items-center justify-between gap-2">
                   
                   {/* Chart Container */}
@@ -351,22 +357,22 @@ const DashboardPage = () => {
                     {/* Centered label */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                       <span className="text-3xl font-extrabold text-white">{totalQueries}</span>
-                      <span className="text-[10px] uppercase text-white/40 tracking-widest font-bold">Total Queries</span>
+                      <span className="text-[10px] uppercase text-white/40 tracking-widest font-bold">{t('dashboard.totalQueries')}</span>
                     </div>
                   </div>
 
                   {/* Legend Grid */}
                   <div className="flex-1 space-y-2.5 pl-4 text-xs">
                     <div className="grid grid-cols-3 text-[10px] text-white/30 uppercase tracking-widest font-bold border-b border-white/5 pb-1.5">
-                      <span>Hub</span>
-                      <span className="text-center">Share</span>
-                      <span className="text-right">Trend</span>
+                      <span>{t('landing.hero.cta').substring(0, 3)}</span>
+                      <span className="text-center">{language === 'te' ? 'వాటా' : language === 'hi' ? 'भाग' : 'Share'}</span>
+                      <span className="text-right">{language === 'te' ? 'ట్రెండ్' : language === 'hi' ? 'रुझान' : 'Trend'}</span>
                     </div>
                     {donutData.map((item) => (
                       <div key={item.name} className="grid grid-cols-3 items-center font-medium">
                         <div className="flex items-center gap-2 truncate">
                           <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                          <span className="text-white/80 truncate">{item.name.split(' ')[0]} AI</span>
+                          <span className="text-white/80 truncate">{item.name}</span>
                         </div>
                         <span className="text-center text-white font-bold">{item.share}</span>
                         <span className="text-right text-green-400 font-bold">{item.trend}</span>
@@ -382,7 +388,7 @@ const DashboardPage = () => {
                   onClick={() => navigate('/history')}
                   className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-neon-cyan hover:text-neon-blue transition-colors group"
                 >
-                  View All Hubs
+                  {t('dashboard.viewAllHubs')}
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
@@ -397,10 +403,10 @@ const DashboardPage = () => {
           >
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-white tracking-wide">AI Performance Trend</h2>
+                <h2 className="text-xl font-bold text-white tracking-wide">{t('dashboard.performanceTrend')}</h2>
                 <select className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white/70 focus:outline-none focus:border-neon-cyan cursor-pointer">
-                  <option value="4weeks">Last 4 Weeks</option>
-                  <option value="3months">Last 3 Months</option>
+                  <option value="4weeks">{t('dashboard.last4Weeks')}</option>
+                  <option value="3months">{t('dashboard.last3Months')}</option>
                 </select>
               </div>
 
@@ -458,9 +464,9 @@ const DashboardPage = () => {
               <div className="flex items-center justify-between text-xs text-white/40 font-medium border-t border-white/5 pt-4 mt-4">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500" />
-                  <span>Average Confidence</span>
+                  <span>{t('dashboard.averageConfidenceLabel')}</span>
                 </div>
-                <span>Accuracy Peak: 87%</span>
+                <span>{t('dashboard.accuracyPeak')}: 87%</span>
               </div>
             </Card>
           </motion.div>
@@ -473,7 +479,7 @@ const DashboardPage = () => {
           >
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full flex flex-col justify-between">
               <div>
-                <h2 className="text-xl font-bold mb-6 text-white tracking-wide">AI Insights Panel</h2>
+                <h2 className="text-xl font-bold mb-6 text-white tracking-wide">{t('dashboard.insightsPanel')}</h2>
                 
                 <div className="grid grid-cols-2 gap-4">
                   {insights.map((insight) => (
@@ -497,7 +503,7 @@ const DashboardPage = () => {
               <div className="bg-neon-cyan/5 border border-neon-cyan/10 rounded-2xl p-3.5 mt-6 flex items-center gap-3">
                 <Zap className="w-5 h-5 text-neon-cyan flex-shrink-0 animate-pulse" />
                 <p className="text-[11px] text-neon-cyan/80 leading-relaxed font-semibold">
-                  Intelligent Agent Suggestion: Expand <strong>Agriculture AI</strong> models during daylight peak activity.
+                  {t('dashboard.suggestion')}
                 </p>
               </div>
             </Card>
@@ -517,8 +523,8 @@ const DashboardPage = () => {
           >
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full relative overflow-hidden flex flex-col justify-between min-h-[440px]">
               <div>
-                <h2 className="text-xl font-bold mb-2 text-white tracking-wide">AI Ecosystem Map</h2>
-                <p className="text-xs text-white/40 mb-6">Real-time flow of interactions across your AI ecosystem</p>
+                <h2 className="text-xl font-bold mb-2 text-white tracking-wide">{t('dashboard.ecosystemMap')}</h2>
+                <p className="text-xs text-white/40 mb-6">{t('dashboard.ecosystemMapDesc')}</p>
               </div>
 
               {/* Digital Twin SVG Visualization */}
@@ -558,9 +564,9 @@ const DashboardPage = () => {
                   {/* Medical Node (Top Left) */}
                   <g transform="translate(10, 25)">
                     <rect width="110" height="60" rx="12" fill="rgba(5, 11, 26, 0.85)" stroke="rgba(239, 68, 68, 0.25)" strokeWidth="1.5" />
-                    <text x="12" y="24" fill="#EF4444" fontSize="10" fontWeight="bold">Medical AI</text>
-                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">9 Queries</text>
-                    <text x="12" y="48" fill="#EF4444" fontSize="8" fontWeight="bold">43% share</text>
+                    <text x="12" y="24" fill="#EF4444" fontSize="10" fontWeight="bold">{t('landing.hubs.medical')}</text>
+                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">{medicalCount} {language === 'te' ? 'ప్రశ్నలు' : language === 'hi' ? 'क्वेरी' : 'Queries'}</text>
+                    <text x="12" y="48" fill="#EF4444" fontSize="8" fontWeight="bold">{donutData.find(d => d.name === t('landing.hubs.medical'))?.share || '0%'} {language === 'te' ? 'వాటా' : language === 'hi' ? 'भाग' : 'share'}</text>
                     {/* Sparkline */}
                     <path d="M70,40 Q80,25 90,45 T105,30" fill="none" stroke="#EF4444" strokeWidth="1" opacity="0.6" />
                   </g>
@@ -568,9 +574,9 @@ const DashboardPage = () => {
                   {/* Agriculture Node (Top Right) */}
                   <g transform="translate(280, 25)">
                     <rect width="110" height="60" rx="12" fill="rgba(5, 11, 26, 0.85)" stroke="rgba(16, 185, 129, 0.25)" strokeWidth="1.5" />
-                    <text x="12" y="24" fill="#10B981" fontSize="10" fontWeight="bold">Agriculture AI</text>
-                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">7 Queries</text>
-                    <text x="12" y="48" fill="#10B981" fontSize="8" fontWeight="bold">33% share</text>
+                    <text x="12" y="24" fill="#10B981" fontSize="10" fontWeight="bold">{t('landing.hubs.agriculture')}</text>
+                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">{agricultureCount} {language === 'te' ? 'ప్రశ్నలు' : language === 'hi' ? 'क्वेरी' : 'Queries'}</text>
+                    <text x="12" y="48" fill="#10B981" fontSize="8" fontWeight="bold">{donutData.find(d => d.name === t('landing.hubs.agriculture'))?.share || '0%'} {language === 'te' ? 'వాటా' : language === 'hi' ? 'भाग' : 'share'}</text>
                     {/* Sparkline */}
                     <path d="M70,45 Q80,30 90,48 T105,35" fill="none" stroke="#10B981" strokeWidth="1" opacity="0.6" />
                   </g>
@@ -578,9 +584,9 @@ const DashboardPage = () => {
                   {/* Finance Node (Bottom Left) */}
                   <g transform="translate(10, 155)">
                     <rect width="110" height="60" rx="12" fill="rgba(5, 11, 26, 0.85)" stroke="rgba(245, 158, 11, 0.25)" strokeWidth="1.5" />
-                    <text x="12" y="24" fill="#F59E0B" fontSize="10" fontWeight="bold">Finance AI</text>
-                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">0 Queries</text>
-                    <text x="12" y="48" fill="#F59E0B" fontSize="8" fontWeight="bold">0% share</text>
+                    <text x="12" y="24" fill="#F59E0B" fontSize="10" fontWeight="bold">{t('landing.hubs.finance')}</text>
+                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">{financeCount} {language === 'te' ? 'ప్రశ్నలు' : language === 'hi' ? 'क्वेरी' : 'Queries'}</text>
+                    <text x="12" y="48" fill="#F59E0B" fontSize="8" fontWeight="bold">{donutData.find(d => d.name === t('landing.hubs.finance'))?.share || '0%'} {language === 'te' ? 'వాటా' : language === 'hi' ? 'भाग' : 'share'}</text>
                     {/* Sparkline */}
                     <path d="M70,48 Q80,48 90,48 T105,48" fill="none" stroke="#F59E0B" strokeWidth="1" opacity="0.4" />
                   </g>
@@ -588,9 +594,9 @@ const DashboardPage = () => {
                   {/* Student Node (Bottom Right) */}
                   <g transform="translate(280, 155)">
                     <rect width="110" height="60" rx="12" fill="rgba(5, 11, 26, 0.85)" stroke="rgba(59, 130, 246, 0.25)" strokeWidth="1.5" />
-                    <text x="12" y="24" fill="#3B82F6" fontSize="10" fontWeight="bold">Student AI</text>
-                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">5 Queries</text>
-                    <text x="12" y="48" fill="#3B82F6" fontSize="8" fontWeight="bold">24% share</text>
+                    <text x="12" y="24" fill="#3B82F6" fontSize="10" fontWeight="bold">{t('landing.hubs.student')}</text>
+                    <text x="12" y="38" fill="rgba(255,255,255,0.4)" fontSize="8">{studentCount} {language === 'te' ? 'ప్రశ్నలు' : language === 'hi' ? 'क्वेरी' : 'Queries'}</text>
+                    <text x="12" y="48" fill="#3B82F6" fontSize="8" fontWeight="bold">{donutData.find(d => d.name === t('landing.hubs.student'))?.share || '0%'} {language === 'te' ? 'వాటా' : language === 'hi' ? 'भाग' : 'share'}</text>
                     {/* Sparkline */}
                     <path d="M70,35 Q80,45 90,30 T105,42" fill="none" stroke="#3B82F6" strokeWidth="1" opacity="0.6" />
                   </g>
@@ -610,7 +616,7 @@ const DashboardPage = () => {
               `}} />
 
               <div className="text-center text-[10px] text-white/30 uppercase tracking-widest font-bold mt-2">
-                Flow streams represent active data throughput
+                {t('dashboard.flowStreams')}
               </div>
             </Card>
           </motion.div>
@@ -625,9 +631,9 @@ const DashboardPage = () => {
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full flex flex-col justify-between min-h-[440px]">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-white tracking-wide">Hub Performance</h2>
+                  <h2 className="text-xl font-bold text-white tracking-wide">{t('dashboard.hubPerformance')}</h2>
                   <select className="bg-white/5 border border-white/10 rounded-xl px-2.5 py-1 text-xs text-white/50 focus:outline-none">
-                    <option value="thisweek">This Week</option>
+                    <option value="thisweek">{t('dashboard.thisWeek')}</option>
                   </select>
                 </div>
 
@@ -655,11 +661,11 @@ const DashboardPage = () => {
 
               <div className="grid grid-cols-2 gap-3 text-center text-[10px] uppercase font-bold tracking-wider pt-6 border-t border-white/5 mt-6">
                 <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="text-white/40 block mb-0.5">Average Load</span>
+                  <span className="text-white/40 block mb-0.5">{t('dashboard.averageLoad')}</span>
                   <span className="text-white font-extrabold text-xs">57.2%</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
-                  <span className="text-white/40 block mb-0.5">Peak Usage</span>
+                  <span className="text-white/40 block mb-0.5">{t('dashboard.peakUsage')}</span>
                   <span className="text-neon-cyan font-extrabold text-xs">90%</span>
                 </div>
               </div>
@@ -676,12 +682,12 @@ const DashboardPage = () => {
             <Card className="border border-white/5 bg-navy-light/20 backdrop-blur-xl p-6 h-full flex flex-col justify-between min-h-[440px]">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-white tracking-wide">Recent Activity</h2>
+                  <h2 className="text-xl font-bold text-white tracking-wide">{t('dashboard.recentActivity')}</h2>
                   <button
                     onClick={() => navigate('/history')}
                     className="text-xs font-bold text-neon-cyan hover:text-neon-blue transition-colors"
                   >
-                    View All
+                    {t('dashboard.viewAll')}
                   </button>
                 </div>
 
@@ -721,7 +727,7 @@ const DashboardPage = () => {
               </div>
 
               <div className="text-center text-[10px] text-white/30 uppercase tracking-widest font-bold pt-4 border-t border-white/5 mt-4">
-                Real-time activity logs streaming
+                {t('dashboard.activityStreaming')}
               </div>
             </Card>
           </motion.div>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { useNotifications } from '../context/NotificationContext.jsx';
 import { LanguageSwitcher } from '../components/LanguageSwitcher.jsx';
 import { Button } from '../components/Button.jsx';
 import { Input } from '../components/Input.jsx';
@@ -14,6 +15,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const { t } = useLanguage();
+  const { addNotification } = useNotifications();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,9 +27,11 @@ const LoginPage = () => {
 
     try {
       await login(formData.email, formData.password);
+      addNotification(`Logged in successfully as ${formData.email}`, 'success');
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
+      addNotification('Login failed. Please verify credentials.', 'error');
     } finally {
       setLoading(false);
     }

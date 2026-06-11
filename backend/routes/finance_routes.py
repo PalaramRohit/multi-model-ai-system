@@ -69,6 +69,30 @@ def analyze_finances():
         except Exception as e:
             print(f"DB Log Error: {e}")
 
+        # Send query email notification if user is logged in
+        if user_id != 'guest':
+            try:
+                from bson.objectid import ObjectId
+                user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+                if user and user.get('email'):
+                    from utils.email_helper import send_email_notification
+                    subject = "Multi-Model AI: Financial Analysis Report"
+                    body = f"""
+                    <div style="font-family: sans-serif; padding: 20px; background-color: #0a0f24; color: #ffffff; border-radius: 10px;">
+                        <h2 style="color: #eab308; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">Finance AI - Spending Report</h2>
+                        <p>Hello {user.get('name', 'User')},</p>
+                        <p>A new spending and financial analysis has been generated for file: <b>{trans_filename}</b>.</p>
+                        <br/>
+                        <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; font-size: 13px;">
+                            <strong>AI Financial Advice Snippet:</strong><br/>
+                            {report[:500]}...
+                        </div>
+                    </div>
+                    """
+                    send_email_notification(user['email'], subject, body)
+            except Exception as mail_err:
+                print(f"Failed to send finance report email: {mail_err}")
+
         # 5. Cleanup
         if os.path.exists(trans_path):
             os.remove(trans_path)

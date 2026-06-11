@@ -56,6 +56,27 @@ def login():
         user = mongo.db.users.find_one({"email": data['email']})
         if user and bcrypt.check_password_hash(user['password'], data['password']):
             access_token = create_access_token(identity=str(user['_id']), expires_delta=timedelta(days=1))
+            
+            # Send login email notification (fail-safe)
+            try:
+                from utils.email_helper import send_email_notification
+                subject = "Secure Alert: New Login to Multi-Model AI Hub"
+                body = f"""
+                <div style="font-family: sans-serif; padding: 20px; background-color: #0a0f24; color: #ffffff; border-radius: 10px;">
+                    <h2 style="color: #00F0FF; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">New Login Detected</h2>
+                    <p>Hello {user.get('name', 'User')},</p>
+                    <p>You have successfully logged in to your Multi-Model AI account (<b>{user['email']}</b>).</p>
+                    <p><b>Timestamp:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC</p>
+                    <p>All AI hubs (Medical, Agriculture, Student, Finance) are fully operational and ready for use.</p>
+                    <div style="margin-top: 20px; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 10px;">
+                        This is an automated security notification. If this was not you, please secure your credentials.
+                    </div>
+                </div>
+                """
+                send_email_notification(user['email'], subject, body)
+            except Exception as mail_err:
+                print(f"Failed to trigger login email: {mail_err}")
+
             return jsonify({
                 "message": "Login successful",
                 "access_token": access_token,
@@ -100,6 +121,28 @@ def get_current_user():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    # Client-side clears the token. 
-    # For server-side, we would add to a blocklist here if implemented.
+    # Attempt to send logout notification if token is passed or verify_jwt_in_request succeeds
+    try:
+        verify_jwt_in_request(optional=True)
+        user_id = get_jwt_identity()
+        if user_id:
+            user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+            if user:
+                from utils.email_helper import send_email_notification
+                subject = "Secure Alert: Logged out from Multi-Model AI Hub"
+                body = f"""
+                <div style="font-family: sans-serif; padding: 20px; background-color: #0a0f24; color: #ffffff; border-radius: 10px;">
+                    <h2 style="color: #ef4444; border-bottom: 1px solid #1e293b; padding-bottom: 10px;">Logout Alert</h2>
+                    <p>Hello {user.get('name', 'User')},</p>
+                    <p>We detected a logout from your Multi-Model AI Hub account (<b>{user['email']}</b>).</p>
+                    <p><b>Timestamp:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC</p>
+                    <div style="margin-top: 20px; font-size: 11px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 10px;">
+                        This is an automated security notification. If you did not log out, please check your session settings.
+                    </div>
+                </div>
+                """
+                send_email_notification(user['email'], subject, body)
+    except Exception as e:
+        print(f"Logout email error: {e}")
+        
     return jsonify({"message": "Logout successful"}), 200
