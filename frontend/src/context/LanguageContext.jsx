@@ -632,14 +632,24 @@ const translations = {
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useLanguage must be used within LanguageProvider');
+    // Defensive fallback: return safe defaults instead of throwing,
+    // prevents ReferenceError: language is not defined in any edge case.
+    const safeLang = localStorage.getItem('language') || 'en';
+    return {
+      language: safeLang,
+      changeLanguage: () => {},
+      t: (key) => key,
+    };
   }
   return context;
 };
 
 export const LanguageProvider = ({ children }) => {
+  const SUPPORTED = ['en', 'hi', 'te'];
+
   const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('language') || 'en';
+    const saved = localStorage.getItem('language');
+    return SUPPORTED.includes(saved) ? saved : 'en';
   });
 
   useEffect(() => {
@@ -647,16 +657,29 @@ export const LanguageProvider = ({ children }) => {
   }, [language]);
 
   const t = (key) => {
+    if (!key) return '';
     const keys = key.split('.');
-    let value = translations[language];
+    // Try current language first, fall back to 'en', then return key
+    let value = translations[language] ?? translations['en'];
     for (const k of keys) {
       value = value?.[k];
     }
-    return value || key;
+    if (value !== undefined && value !== null) return value;
+    // Try English fallback
+    let fallback = translations['en'];
+    for (const k of keys) {
+      fallback = fallback?.[k];
+    }
+    return fallback ?? key;
   };
 
   const changeLanguage = (lang) => {
-    setLanguage(lang);
+    if (SUPPORTED.includes(lang)) {
+      setLanguage(lang);
+    } else {
+      console.warn(`[LanguageProvider] Unsupported locale: "${lang}", defaulting to "en"`);
+      setLanguage('en');
+    }
   };
 
   return (
@@ -665,3 +688,4 @@ export const LanguageProvider = ({ children }) => {
     </LanguageContext.Provider>
   );
 };
+
