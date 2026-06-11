@@ -1,9 +1,17 @@
+import sys
+import os
+
+# Fix Vercel Python path: CWD is project root (/var/task),
+# but all modules (config, extensions, routes, services) live in backend/.
+# This must be FIRST before any local imports.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-import os
 
 from config import config
 from extensions import mongo, bcrypt, jwt
+
 
 # Path to the built React frontend (committed to git)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
