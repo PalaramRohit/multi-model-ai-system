@@ -159,6 +159,12 @@ def predict_medical(model_type):
                 # Specific handling for the nested structure seen in debug_output.json
                 # Structure: [{"predictions": {"predictions": [...], "top": "..."}}]
                 
+                # 0. Handle 'outputs' wrapper from Roboflow Workflows
+                if isinstance(inference_result, dict) and 'outputs' in inference_result:
+                    outputs = inference_result['outputs']
+                    if isinstance(outputs, list) and len(outputs) > 0:
+                        inference_result = outputs[0]
+
                 # 1. unwraps the list
                 if isinstance(inference_result, list):
                     if len(inference_result) > 0:
