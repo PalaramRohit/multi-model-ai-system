@@ -1,42 +1,23 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import os
 
 from config import config
 from extensions import mongo, bcrypt, jwt
 
-
-class PrefixMiddleware(object):
-    """WSGI middleware that prepends /api to PATH_INFO if Vercel strips it.
-
-    Vercel's experimentalServices strips the routePrefix (/api) before
-    forwarding requests to the Flask serverless function. This middleware
-    transparently restores the prefix so Flask blueprints (registered with
-    url_prefix='/api/...') continue to match correctly.
-    """
-
-    def __init__(self, wsgi_app, prefix='/api'):
-        self.wsgi_app = wsgi_app
-        self.prefix = prefix
-
-    def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO', '')
-        # Save the original path for diagnostics / catch-all logging
-        environ['ORIGINAL_PATH_INFO'] = path
-        # Only prepend if the prefix is genuinely missing
-        if path != self.prefix and not path.startswith(self.prefix + '/'):
-            environ['PATH_INFO'] = self.prefix + path
-        return self.wsgi_app(environ, start_response)
+# Path to the built React frontend (committed to git)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIST = os.path.join(BASE_DIR, 'frontend', 'dist')
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder=None)
 
-    # ── CORS: allow all origins (tighten in production if needed) ──────────
-    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+    # ── CORS ────────────────────────────────────────────────────────────────
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     # ── Config ──────────────────────────────────────────────────────────────
     app.config.from_object(config)
-    # Ensure JWT has a non-default secret (must be set via Vercel env vars)
     app.config.setdefault('JWT_SECRET_KEY', config.JWT_SECRET_KEY)
 
     # ── Extensions ──────────────────────────────────────────────────────────
@@ -70,7 +51,6 @@ def create_app():
     # ── Health check ────────────────────────────────────────────────────────
     @app.route('/api/health', methods=['GET'])
     def health_check():
-        import os
         mongo_uri = app.config.get('MONGO_URI', '')
         is_localhost = 'localhost' in mongo_uri or '127.0.0.1' in mongo_uri
         db_status = "unknown"
@@ -90,20 +70,24 @@ def create_app():
             "mongo_uri_set": bool(mongo_uri),
         }), 200
 
-    # ── Catch-all diagnostic (must be LAST) ─────────────────────────────────
+    # ── Serve React static assets (JS, CSS, images, etc.) ───────────────────
+    @app.route('/assets/<path:filename>')
+    def serve_assets(filename):
+        return send_from_directory(os.path.join(FRONTEND_DIST, 'assets'), filename)
+
+    @app.route('/india_map.svg')
+    def serve_svg():
+        return send_from_directory(FRONTEND_DIST, 'india_map.svg')
+
+    # ── Catch-all: serve React SPA for all non-API routes ───────────────────
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
-    def catch_all(path):
-        original = request.environ.get('ORIGINAL_PATH_INFO', '/' + path)
-        return jsonify({
-            "error": "Flask Route Not Found",
-            "original_path": original,
-            "received_path": request.path,
-            "registered_blueprints": list(app.blueprints.keys()),
-        }), 404
-
-    # ── Apply prefix middleware AFTER all routes are registered ────────────
-    app.wsgi_app = PrefixMiddleware(app.wsgi_app)
+    def serve_react(path):
+        # Let actual file requests through
+        if path and os.path.isfile(os.path.join(FRONTEND_DIST, path)):
+            return send_from_directory(FRONTEND_DIST, path)
+        # Serve index.html for all React Router paths
+        return send_from_directory(FRONTEND_DIST, 'index.html')
 
     return app
 
