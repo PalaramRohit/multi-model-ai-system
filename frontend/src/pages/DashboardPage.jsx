@@ -38,7 +38,7 @@ import {
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [dbData, setDbData] = useState(null);
   const [loading, setLoading] = useState(true);
 
