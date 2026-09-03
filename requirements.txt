@@ -10,3 +10,5 @@ flask-jwt-extended
 pypdf
 gtts
 pillow
+gunicorn==21.2.0
+

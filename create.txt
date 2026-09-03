@@ -1,0 +1,834 @@
+================================================================================
+                    PROJECT TECHNICAL REPORT & DOCUMENTATION
+                         MULTI-MODEL AI PLATFORM
+                              (MultiModAI)
+================================================================================
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+ABSTRACT .................................................................... i
+CHAPTER 1 - INTRODUCTION .................................................... 1
+  1.1 Problem Statement ..................................................... 1
+  1.2 Existing System ....................................................... 2
+  1.3 Proposed System ....................................................... 2
+  1.4 Scope ................................................................. 3
+CHAPTER 2 - SYSTEM REQUIREMENT SPECIFICATIONS ............................... 4
+  2.1 Software Requirements ................................................. 4
+  2.2 Hardware Requirements ................................................. 5
+  2.3 System Architecture / Block Diagram ................................... 5
+CHAPTER 3 - DESIGN & IMPLEMENTATION ......................................... 7
+  3.1 Features .............................................................. 7
+  3.2 UML Diagrams .......................................................... 9
+  3.3 Environmental Setup ................................................... 11
+  3.4 Implementation and Methodology Steps .................................. 12
+CHAPTER 4 - TEST CASES & RESULTS ............................................ 14
+CHAPTER 5 - CONCLUSION & FUTURE ENHANCEMENTS ................................ 16
+  5.1 Conclusion ............................................................ 16
+  5.2 Future Enhancements ................................................... 16
+REFERENCES .................................................................. 17
+APPENDIX - A: SOURCE CODE (KEY EXCERPTS) .................................... 18
+
+================================================================================
+                                 ABSTRACT
+================================================================================
+MultiModAI is a comprehensive, hybrid Full-Stack Single-Page Application (SPA) 
+designed to democratize access to advanced Artificial Intelligence across critical 
+everyday domains: Healthcare, Agriculture, Education, and Personal Finance. By 
+seamlessly integrating Google Gemini 2.5 Flash for multimodal reasoning (text and 
+image analysis) and Roboflow for specialized computer vision object detection, 
+the platform delivers real-time, actionable insights and expert-level 
+recommendations directly to users. 
+
+The system is architected on a robust Python Flask backend and a modern, 
+responsive React + Vite frontend, ensuring both high performance and scalability. 
+MultiModAI effectively bridges the significant gap between complex, siloed AI 
+technologies and everyday user needs. It empowers individuals by offering 
+accessible, high-tech features such as automated disease detection from medical 
+scans, precision crop health analysis for farmers, personalized career roadmaps 
+for students, and intelligent financial auditing, fostering better decision-making 
+through accessible technology.
+
+================================================================================
+                            CHAPTER 1 - INTRODUCTION
+================================================================================
+
+1.1 Problem Statement
+---------------------
+Access to specialized expert knowledge in healthcare, agriculture, and financial 
+planning is often expensive, time-consuming, or geographically limited. 
+Furthermore, while powerful AI models exist, they are frequently siloed, require 
+significant technical expertise, or are inaccessible to non-technical users.
+
+- Healthcare: Patients often wait days for radiological reports, and diagnostic 
+  facilities are limited in rural areas.
+- Agriculture: Farmers lack immediate access to agronomists for crop disease 
+  identification, leading to crop losses.
+- Education: Personalized career roadmaps and guided mentorship usually require 
+  expensive human consultants.
+- Finance: Custom financial auditing, expense classification, and medical bill 
+  auditing against policy details are complex and manual.
+
+The core problem MultiModAI solves is the latency and accessibility of expert 
+insights. By combining the specific visual recognition capabilities of Roboflow 
+with the reasoning power of broad knowledge experts like Gemini, the platform 
+delivers immediate, high-quality analysis and advice.
+
+1.2 Existing System
+-------------------
+Existing systems in these domains are typically standalone applications that do 
+not share data or interface architectures. A user must use one app for medical 
+imaging, another for financial planning, and a separate service for educational 
+mentoring. 
+
+Furthermore, existing AI tools suffer from several limitations:
+1. Single-Model Reliance: Most tools rely on a single model (either vision or 
+   text) which reduces validation accuracy.
+2. High Response Latency: Processing massive pipelines sequentially can cause 
+   system timeouts.
+3. Lack of Accessibility: Tools rarely include speech synthesis (Text-to-Speech) 
+   and local language support (e.g., Hindi/Telugu) simultaneously.
+4. Minimal Admin Control: No operations dashboard to track API costs, system load, 
+   active processes, and error statuses.
+
+1.3 Proposed System
+-------------------
+MultiModAI resolves these issues by consolidating these expert systems into a 
+single, user-friendly web application with a unified Command Center. The 
+proposed system introduces:
+- Unified Command Dashboard: A sleek glassmorphism dashboard built with React 
+  and Tailwind CSS, featuring a dynamic digital twin node SVG diagram showing real-time 
+  data flow streams from the core to specialized modules.
+- Multi-Model Hybrid Verification: Combines Roboflow (vision model), Llama 3.1 
+  (Cerebras Cloud for speed/specialized assessment), and Google Gemini 2.5 Flash 
+  (synthesis and reasoning) to cross-verify diagnostic outputs.
+- Localized RAG (Retrieval-Augmented Generation): Integrates PDF ingestion to 
+  extract relevant context (e.g., medical reference guides, insurance policy 
+  clauses) to ground the generative suggestions.
+- Real-Time Operations Monitoring: Includes an admin dashboard console tracking 
+  model accuracies, system health circles, audit logs, and live request streams.
+- Multilingual and Voice Support: Built-in translation context supporting English, 
+  Hindi, and Telugu, integrated with Google Text-to-Speech (gTTS) to vocalize 
+  diagnoses.
+
+1.4 Scope
+---------
+The scope of MultiModAI includes:
+1. Authentication: Secure JWT-based registration and login with encrypted passwords.
+2. Medical Diagnosis: Uploading MRI, X-ray, or skin scans to detect fractures, 
+   brain tumors, eye diseases, and skin conditions, coupled with conversational 
+   clinical advice.
+3. Agriculture Agri-Vision: Crop leaf analysis for disease detection and context-aware 
+   crop recommendation mapping using interactive geographic charts.
+4. EduMentor Workspace: Career roadmap plotting, text simplifiers, and automatic 
+   quiz generation.
+5. Smart Billing: Hospital bill estimation and insurance coverage auditing.
+6. System Administration: Real-time service checks, API cost telemetry, and action tools 
+   to trigger diagnostics or restart servers.
+
+================================================================================
+                CHAPTER 2 - SYSTEM REQUIREMENT SPECIFICATIONS
+================================================================================
+
+2.1 Software Requirements
+-------------------------
+The following software tools and libraries are utilized for development and 
+deployment:
+
++----------------------+-------------------------------------------------------+
+| Component            | Technology/Library Used                               |
++----------------------+-------------------------------------------------------+
+| Operating System     | Windows 10/11, Ubuntu Linux, macOS                    |
+| Development IDE      | VS Code / Cursor                                      |
+| Frontend Framework   | React.js 18 (Vite compiler)                           |
+| Styling Framework    | Tailwind CSS (Dark/Glassmorphic presets)              |
+| Route Management     | React Router DOM v6                                   |
+| Charting & Maps      | Recharts (Data Visuals), React Leaflet (GIS Map)      |
+| Backend Environment  | Python 3.10 / 3.11                                    |
+| Backend Framework    | Flask (WSGI web application)                          |
+| Database Engine      | MongoDB Local Community Server / MongoDB Atlas        |
+| DB Wrapper           | Flask-PyMongo                                         |
+| Security & Auth      | Flask-JWT-Extended, Flask-Bcrypt                       |
+| Ingestion & Speech   | pypdf (PDF parsing), gTTS (Google Text-to-Speech)     |
+| AI SDKs / Clients    | google-genai (Gemini), inference-sdk (Roboflow),      |
+|                      | requests (REST API endpoints for Cerebras)            |
+| Hosting/Deployment   | Vercel (Frontend & Backend Serverless Router)         |
++----------------------+-------------------------------------------------------+
+
+2.2 Hardware Requirements
+-------------------------
+The following hardware resources are required for local development and client usage:
+
++----------------------+-------------------------------------------------------+
+| Specification        | Requirement (Development / Production Host)           |
++----------------------+-------------------------------------------------------+
+| CPU                  | Intel Core i5 / AMD Ryzen 5 or higher (Quad-Core minimum) |
+| System RAM           | 8 GB minimum (16 GB recommended for smooth dev workflows) |
+| Disk Storage         | 5 GB free SSD space for system libraries and node_modules|
+| Internet Bandwidth   | 10 Mbps or higher for fast cloud API responses        |
+| Display Resolution   | 1920x1080 Full HD (Responsive layout tested down to   |
+|                      | 360x640 mobile screen widths)                         |
++----------------------+-------------------------------------------------------+
+
+2.3 System Architecture / Block Diagram
+---------------------------------------
+The MultiModAI platform follows a layered, service-oriented architecture. The 
+block diagram below illustrates the flow from the client interface to the 
+underlying database and cloud models:
+
++-----------------------------------------------------------------------------+
+|                               PRESENTATION LAYER                            |
+|  [React + Vite Frontend]                                                    |
+|  - AuthContext (JWT Handling)              - LanguageContext (i18n Context) |
+|  - LiveBackground (HTML5 Canvas Wallpaper) - Recharts & Leaflet Visualizers |
+|  - Dashboard / Hub Pages (Medical, Agri, Student, Finance, Admin Console)   |
++-----------------------------------------------------------------------------+
+                                       ^
+                                       | HTTPS Requests (JSON + Form-data)
+                                       v
++-----------------------------------------------------------------------------+
+|                             API CONTROLLER LAYER                            |
+|  [Python Flask Backend — app.py Factory Pattern]                            |
+|  - JWT Authorization Middleware             - CORS Validation Rules          |
+|  - Blueprint Routers (/api/auth, /api/medical, /api/agriculture, etc.)      |
++-----------------------------------------------------------------------------+
+                                       ^
+                                       | Business Logic Routing
+                                       v
++-----------------------------------------------------------------------------+
+|                                SERVICE LAYER                                |
+|  - extensions.py (Instantiated Shared DB/Auth instances)                    |
+|  - medical_service.py                      - agriculture_service.py         |
+|  - billing_service.py                      - finance_service.py             |
+|  - tts_service.py / roboflow_service.py    - education_service.py           |
++-----------------------------------------------------------------------------+
+         ^                     ^                          ^             ^
+         | DB Queries          | Multimodal Reasoning     | Vision      | Llama
+         v                     v                          v             v
++------------------+  +-------------------+  +----------------+  +------------+
+|  DATABASE LAYER  |  |    GOOGLE GEMINI  |  |    ROBOFLOW    |  |  CEREBRAS  |
+|  - MongoDB       |  |  [gemini-2.5-     |  |  INFERENCE API |  | CLOUD API  |
+|    Collections:  |  |   flash client]   |  | - Fracture/    |  |  - Llama   |
+|    * users       |  |  - Prompts        |  |   Brain Tumor  |  |    3.1     |
+|    * history     |  |  - RAG PDF Context|  | - Agri Crop    |  |    Model   |
++------------------+  +-------------------+  +----------------+  +------------+
+
+================================================================================
+                      CHAPTER 3 - DESIGN & IMPLEMENTATION
+================================================================================
+
+3.1 Features
+------------
+The application features a comprehensive command console dashboard and five distinct 
+functional hubs:
+
+1. Unified Dashboard Command Center
+   - Operations status indicator: Pulse animations representing live server state.
+   - Five interactive KPI cards: Total interactions, Active Models, AI Confidence, 
+     Reports Generated, and Scan Images.
+   - Interactive Digital Twin SVG Map: Custom coordinate layout mapping nodes. 
+     Displays animated flow arrows connecting "Core AI" to "Specialized Hubs" on hover.
+   - Trend lines: Interactive Recharts showing weekly request volume and accuracy forecasts.
+
+2. Medical AI Hub (🩺)
+   - Visual Scan Analyzer: Detects brain tumors, lung conditions, fractures, eye 
+     pathologies, skin diseases, and gastrointestinal anomalies.
+   - Roboflow Object Detection: Displays matching bounding boxes and confidence rates.
+   - Three-Model Hybrid Synthesis: Combines Roboflow's bounding coordinates with 
+     Llama 3.1's technical assessment and Gemini's conversational layout.
+   - General Consultation Chat: Answers generic medical queries, referencing a 
+     pre-loaded reference medical handbook via a localized RAG system.
+   - Voice Feedback: Integrated Google Text-to-Speech synthesis with options to 
+     play, pause, or download diagnostic reports in MP3 format.
+
+3. Agriculture AI Hub (🌾)
+   - Agri-Vision Crop Disease Upload: Uploads plant leaf photos to identify infections 
+     (e.g., Late Blight, Rust, Leaf Spot) and outputs organic treatment advice.
+   - Smart Crop Recommender: Evaluates location, season, soil pH, and watering schedules. 
+     Returns a structured Markdown table mapping recommended crops, estimated costs, 
+     potential profit, and crop risk levels.
+   - Geographic Context Mapping: Connects location parameters with an interactive Leaflet 
+     JS Map displaying agricultural markers in relevant regions.
+
+4. EduMentor Student AI Hub (🎓)
+   - Text Simplifier: Automatically rewrites dense research literature and study sheets 
+     into simplified concepts based on age group.
+   - MCQ Quiz Generator: Evaluates text content and outputs five interactive, multiple-choice 
+     questions with scoring grids.
+   - Study Planner: Generates daily checklists and goals based on days-to-exam and topic.
+
+5. Finance AI Hub (💰)
+   - Spending Analyzer: Generates interactive spending breakdown charts using Recharts 
+     based on uploaded CSV transaction files.
+   - Smart Insurance Surveyor & Bill Auditor: Parses policy details (PDF files) and 
+     validates hospital bill items. Checks Room Rent Caps, Copayments, and Exclusions, 
+     outputting estimated bills, coverage totals, and patient pay.
+
+6. Security & Admin Operations Control Panel (🛡️)
+   - Real-time gauge: Overall platform health index circle (96% Score).
+   - API Cost and Telemetry meters: Tracks active requests and counts.
+   - Audit event logger table: Captures user registrations, administrative logins, and 
+     model changes.
+   - Action Hub buttons: Diagnostics triggers, model resets, user permissions controls.
+
+3.2 UML Diagrams
+----------------
+
+UML Sequence Diagram: User Authentication & Token Ingestion
+===========================================================
++--------------+          +------------------+         +---------------+        +--------------+
+| React Client |          | Auth Route (API) |         | BCrypt Helper |        | MongoDB Corp |
++--------------+          +------------------+         +---------------+        +--------------+
+       |                           |                           |                       |
+       |--- 1. POST /login ------->|                           |                       |
+       |    (Email, Pass)          |--- 2. Find by Email ----------------------------->|
+       |                           |<-- 3. Return User Doc (Hashed Pass) --------------|
+       |                           |                           |                       |
+       |                           |--- 4. Verify password --->|                       |
+       |                           |<-- 5. Match Result (T/F) -|                       |
+       |                           |                           |                       |
+       |                           |--- 6. Generate JWT -------|                       |
+       |<-- 7. Return Token & -----|                           |                       |
+       |    User Data (JSON)       |                           |                       |
+       v                           v                           v                       v
+
+UML Sequence Diagram: Hybrid 3-Model Medical Ingestion Process
+==============================================================
++----------+      +--------------+      +----------------+      +----------+      +----------+
+| React UI |      | Med Route    |      | Roboflow API   |      | Cerebras |      | Gemini   |
++----------+      +--------------+      +----------------+      +----------+      +----------+
+     |                   |                       |                    |                 |
+     |-- 1. Upload File->|                       |                    |                 |
+     |   (scan.jpg)      |-- 2. Send Image ----->|                    |                 |
+     |                   |   (Base64)            |                    |                 |
+     |                   |<- 3. Bounding Boxes --|                    |                 |
+     |                   |      (Coordinates)    |                    |                 |
+     |                   |                                            |                 |
+     |                   |-- 4. Send Findings ----------------------->|                 |
+     |                   |   (Roboflow data)                          |                 |
+     |                   |<- 5. Diagnostic Assessment (Llama) --------|                 |
+     |                   |                                                              |
+     |                   |-- 6. Trigger Multimodal Synthesis (Llama + Roboflow + Scan)->|
+     |                   |<-- 7. Output Consolidated Medical Report (Markdown) ---------|
+     |<- 8. Render XML --|                                                              |
+     |   & Box Overlays  |                                                              |
+     v                   v                                                              v
+
+UML Class Diagram: Backend Structure
+====================================
++-----------------------------------+
+|               Config              |
++-----------------------------------+
+| + ROBOFLOW_API_KEY: string        |
+| + MONGO_URI: string               |
+| + MODEL_CONFIGS: dict             |
++-----------------------------------+
+                  ^
+                  | Ingests configs
+                  v
++-----------------------------------+        +----------------------------------+
+|           Flask App Factory       |------->|            Blueprints            |
+|           (app.py)                |        |  (routes/medical_routes.py, etc.)|
++-----------------------------------+        +----------------------------------+
+                  |                                           |
+                  | Configures extensions                     | Maps HTTP endpoints
+                  v                                           v
++-----------------------------------+        +----------------------------------+
+|         extensions.py             |        |           Services               |
+|  - mongo (PyMongo)                |<-------|  (services/medical_service.py,   |
+|  - bcrypt (Bcrypt)                |        |   services/billing_service.py)   |
+|  - jwt (JWTManager)               |        +----------------------------------+
++-----------------------------------+
+
+3.3 Environmental Setup
+-----------------------
+Follow these steps to establish the developer workspace locally:
+
+A. Python Backend Environment Setup
+1. Open PowerShell / Command Prompt and clone the repository.
+2. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+3. Initialize the Python virtual environment:
+   ```bash
+   python -m venv .venv
+   ```
+4. Activate the virtual environment:
+   - On Windows (PowerShell):
+     ```powershell
+     .venv\Scripts\Activate.ps1
+     ```
+   - On Linux/macOS:
+     ```bash
+     source .venv/bin/activate
+     ```
+5. Install backend package dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+6. Set up the local `.env` environment variables file inside the `backend/` directory:
+   ```env
+   GEMINI_API_KEY=your_google_gemini_api_key
+   ROBOFLOW_API_KEY=your_roboflow_private_api_key
+   MONGO_URI=mongodb://localhost:27017/ai_platform
+   JWT_SECRET_KEY=highly_secure_random_string_key
+   CEREBRAS_API_KEY=your_cerebras_llama_api_key
+   ```
+7. Start the Flask developer server (binds on port 5000):
+   ```bash
+   python app.py
+   ```
+
+B. React Frontend Environment Setup
+1. Open a second terminal window and navigate to the `frontend` folder:
+   ```bash
+   cd frontend
+   ```
+2. Ingest required Node.js package dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite hot-reloading development server (binds on port 3000/3001):
+   ```bash
+   npm run dev
+   ```
+
+3.4 Implementation and Methodology Steps
+----------------------------------------
+The MultiModAI application utilizes a structured developer methodology:
+
+1. Modular Routing (Blueprints): The core Flask web server (`app.py`) initializes 
+   CORS, connects to MongoDB, and registers Blueprints. This splits routes 
+   into dedicated context domains (`auth_routes.py`, `medical_routes.py`, etc.).
+2. Database Schema Modeling: MongoDB acts as a flexible storage repository. 
+   User records contain hashed string passwords. History documents store metadata 
+   for every model query, which supports history review inside the React UI.
+3. RAG Document Ingestion: The RAG engine initializes on application startup. 
+   `medical_service.py` looks inside the `data/knowledge_base/` folder. It parses 
+   PDF documents using `pypdf`, extracts page strings, and builds an index. 
+   When queries match indexed terms, contextual excerpts are retrieved and injected 
+   into Gemini's prompt space.
+4. API Wrapper Engineering: We build wrapper services utilizing the new 
+   `google-genai` SDK. This architecture specifies `gemini-2.5-flash` as the core 
+   model and lists fallback identifiers (`gemini-2.5-flash-lite`, `gemini-2.0-flash`) 
+   to handle network retry loops cleanly.
+5. Unified Cross-Origin Config: To deploy on serverless routers (such as Vercel), 
+   the project implements a root-level `vercel.json` routing configuration. All 
+   frontend routes serve the built React bundle, and requests prefixed with 
+   `/api/*` are redirected to the Python WSGI adapter in `app.py`.
+
+================================================================================
+                          CHAPTER 4 - TEST CASES & RESULTS
+================================================================================
+
+A comprehensive test suite was executed to validate the functionalities:
+
++-----+------------------------+------------------------+---------------------------------------+---------------------------------------+--------+
+| ID  | Test Case Description  | Input Parameters       | Expected Output                       | Actual Output                         | Status |
++-----+------------------------+------------------------+---------------------------------------+---------------------------------------+--------+
+| T01 | Secure User Signup     | Username, Email,       | Hash password via Bcrypt, store       | Password hashed successfully,         | PASS   |
+|     |                        | Password, Age          | document in 'users' collection,       | user ID returned.                     |        |
+|     |                        |                        | return success status.                |                                       |        |
+| T02 | JWT Token Issuance     | Email & Password       | Verify password hash. If valid,       | Token returned in headers, saved in   | PASS   |
+|     |                        |                        | return access token.                  | localStorage by AuthContext.          |        |
+| T03 | Roboflow Visual Scan   | MRI image upload,      | Parse image file, send to Roboflow,   | Bounding boxes detected with          | PASS   |
+|     | Analysis               | Workspace details      | return coordinates and label metadata.| coordinates, accuracy metrics returned.|        |
+| T04 | 3-Model Hybrid         | Symptoms, scan image,  | Ingest Roboflow vision coordinates,   | Output matches clinical Markdown      | PASS   |
+|     | Medical Synthesis      | Llama analysis context | combine with Llama 3.1 feedback and   | layout, incorporating safety notice.  |        |
+|     |                        |                        | synthesize Markdown summary via Gemini|                                       |        |
+| T05 | Crop Recommendation    | Soil: Clay, pH: 6.5,   | Perform dual inference. Output crop   | Structured Markdown table returned   | PASS   |
+|     |                        | Location: Hyderabad    | advice list with Profit/Risk rates.   | showing cost parameters.              |        |
+| T06 | Smart Billing Audit    | Room type: ICU,        | Calculate billing cap. Ingest policy  | Returns JSON with total cost,        | PASS   |
+|     |                        | Policy: Insurance.pdf  | document. Return insurance share.     | room cap warning, coverage limits.    |        |
+| T07 | Admin Diagnostic Control| Run System diagnostic  | Trigger backend self-health test,     | App logs console diagnostics,         | PASS   |
+|     |                        | click event            | update status gauge in console UI.    | updates circle health gauge to 96%.   |        |
+| T08 | TTS Audio Synthesis    | Markdown advice text   | gTTS wrapper converts text to MP3 data| Audio plays in player, download      | PASS   |
+|     |                        |                        | and routes download path.             | buttons function without lag.         |        |
++-----+------------------------+------------------------+---------------------------------------+---------------------------------------+--------+
+
+================================================================================
+                 CHAPTER 5 - CONCLUSION & FUTURE ENHANCEMENTS
+================================================================================
+
+5.1 Conclusion
+--------------
+MultiModAI succeeds in consolidating specialized domain intelligence into a unified, 
+data-dense command dashboard interface. By combining visual object recognition with 
+multimodal reasoning, the platform reduces dependency on human consultants for 
+preliminary assessments. Security controls like JWT validation and Bcrypt password 
+hashing, along with real-time admin metrics, ensure that the system functions as a 
+production-ready dashboard platform. The integration of local language context and 
+TTS audio conversion provides accessibility to a diverse audience.
+
+5.2 Future Enhancements
+-----------------------
+Future updates plan to expand the system's capabilities through the following steps:
+1. Edge Deployment: Support local execution of quantized vision models (e.g., YOLOv8-nano) 
+   using ONNX Runtime directly in the browser. This ensures diagnostic features remain 
+   available offline.
+2. Multi-Tenant Payment Portals: Implement Stripe billing to charge users per 
+   medical audit or agricultural report.
+3. Enhanced RAG: Integrate vector databases (e.g., Pinecone/ChromaDB) to manage 
+   thousands of medical books and regional agricultural manuals.
+4. Direct Wearable Ingestion: Support live ingestion of data streams from medical 
+   wearables (heart rate monitor, blood pressure monitors) to analyze conditions 
+   continuously.
+
+================================================================================
+                                   REFERENCES
+================================================================================
+1. Google Gemini 2.5 Flash SDK Documentation, Google AI Studio. 
+   URL: https://ai.google.dev/gemini-api/docs
+2. Roboflow Inference API & Workflows Guide, Roboflow Developer Portal.
+   URL: https://docs.roboflow.com/workflows
+3. Flask Web Development (2nd Edition) - Miguel Grinberg, O'Reilly Media.
+4. React Context and State Patterns, Official React Documentation. 
+   URL: https://react.dev/reference/react/useContext
+5. MongoDB Security and Indexing Best Practices, MongoDB Manual.
+   URL: https://www.mongodb.com/docs/manual/security/
+6. gTTS: Python Google Text-to-Speech library.
+   URL: https://gtts.readthedocs.io/en/latest/
+
+================================================================================
+                    APPENDIX - A: SOURCE CODE (KEY EXCERPTS)
+================================================================================
+
+FILE: backend/app.py
+====================
+```python
+import sys
+import os
+
+# Fix Vercel Python path: CWD is project root (/var/task),
+# but all modules (config, extensions, routes, services) live in backend/.
+# This must be FIRST before any local imports.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+
+from config import config
+from extensions import mongo, bcrypt, jwt
+
+
+# Path to the built React frontend
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIST = os.path.join(BASE_DIR, 'frontend', 'dist')
+
+
+def create_app():
+    app = Flask(__name__, static_folder=None)
+
+    # CORS Configuration
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+    # Config Ingestion
+    app.config.from_object(config)
+    app.config.setdefault('JWT_SECRET_KEY', config.JWT_SECRET_KEY)
+
+    # Extensions Ingestion
+    mongo.init_app(app)
+    bcrypt.init_app(app)
+    jwt.init_app(app)
+
+    # Blueprints Registration
+    from routes.auth_routes import auth_bp
+    from routes.medical_routes import medical_bp
+    from routes.student_routes import student_bp
+    from routes.finance_routes import finance_bp
+    from routes.agriculture_routes import agriculture_bp
+    from routes.dashboard_routes import dashboard_bp
+    from routes.settings_routes import settings_bp
+    from routes.tts_routes import tts_bp
+    from routes.billing_routes import billing_bp
+    from routes.admin_routes import admin_bp
+
+    app.register_blueprint(auth_bp,        url_prefix='/api/auth')
+    app.register_blueprint(medical_bp,     url_prefix='/api/medical')
+    app.register_blueprint(student_bp,     url_prefix='/api/student')
+    app.register_blueprint(finance_bp,     url_prefix='/api/finance')
+    app.register_blueprint(agriculture_bp, url_prefix='/api/agriculture')
+    app.register_blueprint(dashboard_bp,   url_prefix='/api/dashboard')
+    app.register_blueprint(settings_bp,    url_prefix='/api/settings')
+    app.register_blueprint(tts_bp,         url_prefix='/api/tts')
+    app.register_blueprint(billing_bp,     url_prefix='/api/billing')
+    app.register_blueprint(admin_bp,       url_prefix='/api/admin')
+
+    # Health check
+    @app.route('/api/health', methods=['GET'])
+    def health_check():
+        mongo_uri = app.config.get('MONGO_URI', '')
+        is_localhost = 'localhost' in mongo_uri or '127.0.0.1' in mongo_uri
+        db_status = "unknown"
+        db_error = None
+        try:
+            mongo.db.command('ping')
+            db_status = "connected"
+        except Exception as e:
+            db_status = "error"
+            db_error = str(e)
+        return jsonify({
+            "status": "healthy",
+            "service": "MultiModAI Backend",
+            "db_status": db_status,
+            "db_type": "localhost" if is_localhost else "atlas",
+            "db_error": db_error,
+            "mongo_uri_set": bool(mongo_uri),
+        }), 200
+
+    # Serve React SPA Catch-all
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve_react(path):
+        if path and os.path.isfile(os.path.join(FRONTEND_DIST, path)):
+            return send_from_directory(FRONTEND_DIST, path)
+        return send_from_directory(FRONTEND_DIST, 'index.html')
+
+    return app
+
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+```
+
+FILE: backend/config.py
+=======================
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
+
+class Config:
+    ROBOFLOW_API_KEY = os.getenv('ROBOFLOW_API_KEY', 'default_key')
+    ROBOFLOW_API_URL = "https://serverless.roboflow.com"
+    MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/ai_platform')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default_secret_key_change_me')
+
+    MODEL_CONFIGS = {
+        'heart': {
+            'type': 'workflow', 
+            'workspace_name': 'multimodelai-2dvdi',
+            'workflow_id': 'custom-workflow-5',
+            'limit': 1,
+            'confidence': 0.5
+        },
+        'brain': {
+            'type': 'workflow',
+            'workspace_name': 'multimodelai-2dvdi',
+            'workflow_id': 'custom-workflow-4',
+            'limit': 1,
+            'confidence': 0.5
+        },
+        'lungs': {
+            'type': 'workflow',
+            'workspace_name': 'multimodelai-2dvdi',
+            'workflow_id': 'custom-workflow-3',
+            'limit': 1,
+            'confidence': 0.5
+        }
+    }
+    
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'bmp', 'tiff'}
+
+config = Config()
+```
+
+FILE: backend/extensions.py
+===========================
+```python
+from flask_pymongo import PyMongo
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
+
+mongo = PyMongo()
+bcrypt = Bcrypt()
+jwt = JWTManager()
+```
+
+FILE: backend/services/medical_service.py (RAG & Hybrid Verification Snippet)
+============================================================================
+```python
+class MedicalService:
+    def __init__(self):
+        self.api_key = os.getenv('GEMINI_API_KEY')
+        if self.api_key:
+            self.client = genai.Client(api_key=self.api_key)
+            self.model_id = 'gemini-2.5-flash' 
+        else:
+            self.client = None
+            
+        self.knowledge_base_path = None
+        self.knowledge_index = [] 
+        self._load_knowledge_base()
+
+    def _load_knowledge_base(self):
+        kb_dir = os.path.join(os.getcwd(), 'data', 'knowledge_base')
+        if os.path.exists(kb_dir):
+            files = [f for f in os.listdir(kb_dir) if f.lower().endswith('.pdf')]
+            if files:
+                self.knowledge_base_path = os.path.join(kb_dir, files[0])
+                try:
+                    reader = PdfReader(self.knowledge_base_path)
+                    for i, page in enumerate(reader.pages):
+                        text = page.extract_text()
+                        if text:
+                            self.knowledge_index.append({"page": i+1, "text": text})
+                except Exception as e:
+                    print(f"Failed to index PDF: {e}")
+
+    def _retrieve_context(self, query):
+        if not self.knowledge_index or not query:
+            return ""
+        query_words = set(query.lower().split())
+        scored_pages = []
+        for entry in self.knowledge_index:
+            score = sum(1 for word in query_words if word in entry['text'].lower())
+            if score > 0: scored_pages.append((score, entry))
+        scored_pages.sort(key=lambda x: x[0], reverse=True)
+        top_results = scored_pages[:3]
+        return "\n\n".join([f"--- Page {x[1]['page']} ---\n{x[1]['text']}" for x in top_results])
+
+    def get_ai_guidance(self, condition, confidence, language='en', image_path=None, user_notes=''):
+        """
+        Implementing 3-Model Hybrid (Roboflow + Llama + Gemini) Cross-Verification.
+        """
+        if not self.client: return "AI Guidance unavailable."
+
+        rag_context = self._retrieve_context(f"{condition} {user_notes}") if not image_path else ""
+
+        # Llama Assessment Prompt
+        llama_prompt = f"Analyze this Medical Finding:\n- Condition: {condition}\n- Confidence: {confidence}%\n- Patient Notes: {user_notes}"
+        llama_analysis = cerebras_service.generate_content(llama_prompt, "You are a senior medical board examiner.")
+
+        # Gemini Visual Verification Prompt
+        gemini_vision_prompt = f"Analyze this scan. Context suggests: {condition} ({confidence}% confidence). Does image confirm?"
+        contents = [gemini_vision_prompt]
+        if image_path:
+            img = PIL.Image.open(image_path)
+            contents.append(img)
+        gemini_vision_result = generate_content_with_retry(self.client, self.model_id, contents).text
+
+        # Final Master Synthesis
+        final_synthesis_prompt = f"""
+        You are the Master Medical Architect. Cross-verify:
+        1. Vision Engine Result: {condition} ({confidence}%)
+        2. Llama 3.1 Analysis: {llama_analysis}
+        3. Gemini Vision Evidence: {gemini_vision_result}
+        
+        Combine these into a single high-reliability report in {language} language.
+        Start with: "This output is cross-verified by 3 AI models (Roboflow, Llama 3.1, and Gemini) for maximum reliability."
+        """
+        final_report = generate_content_with_retry(self.client, self.model_id, final_synthesis_prompt)
+        return final_report.text
+```
+
+FILE: backend/services/billing_service.py (Surveying & Cost Auditing Snippet)
+============================================================================
+```python
+class BillingService:
+    def __init__(self):
+        self.api_key = os.getenv('GEMINI_API_KEY')
+        self.client = genai.Client(api_key=self.api_key) if self.api_key else None
+        self.model_id = 'gemini-2.5-flash'
+
+    def analyze_billing_scenario(self, hospital_name, city, room_type, admission_reason, duration='3', age='30', treatment_type='Medical Management', tier='Tier-1', gender='Male', icu_days='0', surgery_complexity='Medium', emergency='false', implant='false', network_hospital='true', policy_path=None):
+        if not self.client:
+            return {"error": "AI Service Unavailable"}
+
+        scenario = f"""
+        **Hospitalization Scenario:**
+        - Hospital: {hospital_name} | City: {city}
+        - Selected Room: {room_type} | Tier: {tier}
+        - Reason: {admission_reason} | Duration: {duration} Days (ICU: {icu_days} Days)
+        - Patient: {age} Years | {gender}
+        """
+
+        prompt = f"""
+        You are an Expert Medical Insurance Surveyor and Hospital Bill Auditor in India.
+        
+        {scenario}
+        
+        Tasks:
+        1. Analyze Policy (check room cap, copay, exclusions in policy document).
+        2. Estimate total bill based on tier rates in {city}.
+        3. Calculate Coverage (Total - Insurance = Patient Pay).
+        4. Return result ONLY in JSON format:
+        {{
+            "estimated_total_bill": 150000,
+            "insurance_coverage": 120000,
+            "patient_payable": 30000,
+            "breakdown": [
+                {{"item": "Room Rent", "cost": 25000, "covered": 20000, "note": "Cap active"}}
+            ],
+            "key_policy_limitations": ["Room Rent capped at 1% of SI"],
+            "recommendation": "Upgrade only if willing to pay difference."
+        }}
+        """
+        content_parts = [prompt]
+        if policy_path:
+            uploaded_file = self.client.files.upload(path=policy_path)
+            content_parts.append(uploaded_file)
+
+        response = generate_content_with_retry(self.client, self.model_id, content_parts)
+        text = response.text.replace('```json', '').replace('```', '').strip()
+        return json.loads(text)
+```
+
+FILE: frontend/src/App.jsx
+==========================
+```javascript
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext.jsx';
+import { LanguageProvider } from './context/LanguageContext.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
+import { ProtectedRoute } from './components/ProtectedRoute.jsx';
+
+import AdminPage from './pages/AdminPage.jsx';
+import LandingPage from './pages/LandingPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import SignupPage from './pages/SignupPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
+import MedicalPage from './pages/MedicalPage.jsx';
+import AgriculturePage from './pages/AgriculturePage.jsx';
+import FinancePage from './pages/FinancePage.jsx';
+import StudentPage from './pages/StudentPage.jsx';
+import HistoryPage from './pages/HistoryPage.jsx';
+import SettingsPage from './pages/SettingsPage.jsx';
+import UserGuidePage from './pages/UserGuidePage.jsx';
+
+function App() {
+  return (
+    <AuthProvider>
+      <NotificationProvider>
+        <LanguageProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/guide" element={<ProtectedRoute><UserGuidePage /></ProtectedRoute>} />
+            <Route path="/medical" element={<ProtectedRoute><MedicalPage /></ProtectedRoute>} />
+            <Route path="/agriculture" element={<ProtectedRoute><AgriculturePage /></ProtectedRoute>} />
+            <Route path="/finance" element={<ProtectedRoute><FinancePage /></ProtectedRoute>} />
+            <Route path="/student" element={<ProtectedRoute><StudentPage /></ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </LanguageProvider>
+      </NotificationProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
+```
+================================================================================

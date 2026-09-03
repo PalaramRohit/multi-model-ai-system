@@ -151,3 +151,37 @@ The monorepo contains configurations to be deployed as a unified project:
    npm run dev
    ```
    *Runs on `http://localhost:3001` (or `http://localhost:3000`)*
+
+---
+
+## 🐳 Docker Setup & Deployment
+
+The application is fully containerized using **Docker** and **Docker Compose** for easy one-command orchestration of MongoDB, Flask Backend (Gunicorn), and React Frontend (Nginx).
+
+### 1. Configure Environment Variables
+Copy `.env.example` to `.env` in the root directory:
+```bash
+cp .env.example .env
+```
+Fill in your API keys (e.g. `GEMINI_API_KEY`, `ROBOFLOW_API_KEY`, `CEREBRAS_API_KEY`, `ELEVENLABS_API_KEY`).
+
+### 2. Run with Docker Compose
+To build and start all container services (MongoDB, Backend, Frontend):
+```bash
+docker compose up --build -d
+```
+
+### 3. Accessing Services
+- **React Frontend**: `http://localhost:80` (or `http://localhost`)
+- **Flask Backend API**: `http://localhost:5000/api/health`
+- **MongoDB**: `localhost:27017`
+
+### 4. Stopping Containers
+```bash
+docker compose down
+```
+To stop containers and remove persistent data volumes:
+```bash
+docker compose down -v
+```
+

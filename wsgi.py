@@ -17,6 +17,7 @@ if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
 # ── Import the Flask application ────────────────────────────────────────────
+# pyrefly: ignore [missing-import]
 from app import app  # noqa: E402  (backend/app.py)
 
 # ── Local dev runner ────────────────────────────────────────────────────────

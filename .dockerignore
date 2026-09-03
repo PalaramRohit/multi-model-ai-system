@@ -1,0 +1,34 @@
+# Git & Documentation
+.git
+.gitignore
+README.md
+documentation/
+project_report.txt
+create.txt
+
+# Python cache & Virtual Envs
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+backend/__pycache__/
+backend/*/__pycache__/
+.python-version
+uv.lock
+
+# Node.js
+frontend/node_modules/
+frontend/dist/
+
+# Environment files with sensitive credentials
+.env
+backend/.env
+
+# Temporary / OS files
+.DS_Store
+Thumbs.db
+debug_output.json
+*.log
+scratch_*.py
+test_*.py
+backend/scratch_*.py
