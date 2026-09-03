@@ -1,14 +1,25 @@
-# Use official slim Python 3.11 image
+# ── Stage 1: Build React Frontend ─────────────────────────────────────────────
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy package files and install frontend dependencies
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+# Copy frontend source files and build production static bundle
+COPY frontend/ ./
+RUN npm run build
+
+# ── Stage 2: Python Flask Backend + Static Frontend ──────────────────────────
 FROM python:3.11-slim
 
-# Prevent Python from writing .pyc files and enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Set working directory inside container
 WORKDIR /app
 
-# Install system dependencies needed for image processing (Pillow), PDF processing, etc.
+# Install system dependencies needed for image processing (Pillow), PDF, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -18,17 +29,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy python dependency requirements first to leverage Docker cache
 COPY requirements.txt /app/requirements.txt
 
-# Install dependencies
+# Install python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy backend files and root wsgi entrypoint
+# Copy complete project backend and assets
 COPY . /app
 
-# Default port (Cloud Run will override PORT to 8080 or specified container port)
+# Copy built frontend static dist folder from Stage 1 into /app/frontend/dist
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+
+# Default port (Cloud Run sets PORT to 8080 automatically)
 ENV PORT=5000
 EXPOSE 5000
 
-# Run WSGI production server using gunicorn with dynamic $PORT binding
+# Run WSGI production server using gunicorn
 CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 wsgi:app
-
