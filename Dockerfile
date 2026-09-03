@@ -25,8 +25,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy backend files and root wsgi entrypoint
 COPY . /app
 
-# Expose port 5000 for backend service
+# Default port (Cloud Run will override PORT to 8080 or specified container port)
+ENV PORT=5000
 EXPOSE 5000
 
-# Run WSGI production server using gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "wsgi:app"]
+# Run WSGI production server using gunicorn with dynamic $PORT binding
+CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 4 --timeout 120 wsgi:app
+
