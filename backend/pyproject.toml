@@ -18,3 +18,10 @@ dependencies = [
     "gtts",
     "pillow",
 ]
+
+[tool.pyright]
+include = ["."]
+extraPaths = ["."]
+
+[tool.mypy]
+mypy_path = "."

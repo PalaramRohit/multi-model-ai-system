@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from extensions import mongo, bcrypt, jwt
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from bson.objectid import ObjectId
 from datetime import timedelta, datetime
 

@@ -18,3 +18,10 @@ dependencies = [
     "gtts",
     "pillow",
 ]
+
+[tool.pyright]
+include = ["backend", "wsgi.py"]
+extraPaths = ["backend"]
+
+[tool.mypy]
+mypy_path = "backend"
