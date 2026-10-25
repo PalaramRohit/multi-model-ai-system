@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson.objectid import ObjectId
 from extensions import mongo
 
 settings_bp = Blueprint('settings', __name__)
@@ -9,7 +10,11 @@ settings_bp = Blueprint('settings', __name__)
 def get_settings():
     try:
         current_user_id = get_jwt_identity()
-        user = mongo.db.users.find_one({'_id': current_user_id})
+        try:
+            query_id = ObjectId(current_user_id)
+        except Exception:
+            query_id = current_user_id
+        user = mongo.db.users.find_one({'_id': query_id})
         
         if not user:
              return jsonify({'error': 'User not found'}), 404
@@ -26,11 +31,15 @@ def get_settings():
 def update_settings():
     try:
         current_user_id = get_jwt_identity()
+        try:
+            query_id = ObjectId(current_user_id)
+        except Exception:
+            query_id = current_user_id
         data = request.json
         
         # Update user document with new settings
         result = mongo.db.users.update_one(
-            {'_id': current_user_id},
+            {'_id': query_id},
             {'$set': {'settings': data}}
         )
 
