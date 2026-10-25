@@ -76,6 +76,7 @@ def create_app():
             "db_type": "localhost" if is_localhost else "atlas",
             "db_error": db_error,
             "mongo_uri_set": bool(mongo_uri),
+            "mongo_uri_preview": (mongo_uri[:25] + "..." + mongo_uri[-20:]) if len(mongo_uri) > 45 else ("set" if mongo_uri else "not set")
         }), 200
 
     # ── Serve React static assets (JS, CSS, images, etc.) ───────────────────
